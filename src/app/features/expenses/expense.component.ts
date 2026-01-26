@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ExpenseService } from '../../core/services/expense.service';
@@ -16,8 +16,11 @@ export class ExpenseComponent {
   private expenseService = inject(ExpenseService);
 
   expenses$ = this.expenseService.filteredExpenses$;
+  allExpenses$ = this.expenseService.expenses$;
   totalExpenses$ = this.expenseService.totalExpenses$;
   selectedCategory$ = this.expenseService.selectedCategory$;
+  
+  showModal = signal(false);
 
   categories = ['Todas', ...CATEGORIES];
   readonly CATEGORIES = CATEGORIES;
@@ -108,5 +111,13 @@ export class ExpenseComponent {
 
   getCategoryEmoji(category: string): string {
     return this.categoryEmojis[category] || '📦';
+  }
+
+  openModal(): void {
+    this.showModal.set(true);
+  }
+
+  closeModal(): void {
+    this.showModal.set(false);
   }
 }

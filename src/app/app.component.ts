@@ -509,8 +509,8 @@ import { CommonModule } from '@angular/common';
     /* Metrics Section */
     .metrics-section {
       display: grid;
-      grid-template-columns: 1fr 220px;
-      gap: var(--spacing-2);
+      grid-template-columns: 3fr 1fr;
+      gap: var(--spacing-3);
       align-items: stretch;
     }
 
@@ -520,6 +520,7 @@ import { CommonModule } from '@angular/common';
 
     .balance-wrapper {
       height: 100%;
+      min-width: 200px;
     }
 
     .balance-wrapper app-balance-card {
@@ -575,7 +576,8 @@ import { CommonModule } from '@angular/common';
       }
       
       .metrics-section {
-        grid-template-columns: 1fr 280px;
+        grid-template-columns: 3fr 1fr;
+        gap: var(--spacing-4);
       }
       
       .management-section {
@@ -607,7 +609,7 @@ import { CommonModule } from '@angular/common';
 
     @media (max-width: 1200px) {
       .metrics-section {
-        grid-template-columns: 1fr;
+        grid-template-columns: 2fr 1fr;
       }
       
       .charts-section {
@@ -615,6 +617,12 @@ import { CommonModule } from '@angular/common';
       }
       
       .management-section {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 900px) {
+      .metrics-section {
         grid-template-columns: 1fr;
       }
     }

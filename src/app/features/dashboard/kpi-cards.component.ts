@@ -64,7 +64,7 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: var(--spacing-2);
+      gap: var(--spacing-3);
       height: 100%;
     }
 
@@ -192,7 +192,7 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
       color: var(--warning-600);
     }
 
-    @media (max-width: 1024px) {
+    @media (max-width: 900px) {
       .kpi-grid {
         grid-template-columns: 1fr;
       }

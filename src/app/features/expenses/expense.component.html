@@ -11,6 +11,19 @@
       <h3 class="expense-title">Nova Despesa</h3>
       <p class="expense-subtitle">Registre seus gastos</p>
     </div>
+    
+    <!-- Botão para abrir modal de extrato -->
+    @if (allExpenses$().length > 0) {
+      <button class="btn-extrato" (click)="openModal()" title="Ver extrato de despesas">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+        <span class="extrato-count">{{ allExpenses$().length }}</span>
+      </button>
+    }
   </div>
 
   <form (ngSubmit)="addExpense()" class="expense-form">
@@ -157,76 +170,125 @@
       Adicionar Despesa
     </button>
   </form>
+</div>
 
-  <!-- Lista de Despesas -->
-  @if (expenses$().length > 0) {
-    <div class="expense-list-section">
-      <div class="list-header">
-        <span class="list-title">Últimas Despesas</span>
-        <select
-          class="filter-select"
-          [value]="selectedCategory$()"
-          (change)="onCategoryChange($any($event.target).value)"
-        >
-          @for (category of categories; track category) {
-            <option [value]="category">{{ category }}</option>
-          }
-        </select>
+<!-- Modal de Extrato de Despesas -->
+@if (showModal()) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-section">
+          <div class="modal-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="15" y1="9" x2="9" y2="15"/>
+              <line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="modal-title">Extrato de Despesas</h2>
+            <p class="modal-subtitle">Gerencie seus gastos</p>
+          </div>
+        </div>
+        <button class="btn-close" (click)="closeModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
       </div>
 
-      <div class="expense-list">
-        @for (expense of expenses$(); track expense.id; let i = $index) {
-          @if (i < 5) {
-            <div class="expense-item" [class.high-value]="isHighValue(expense.value)">
-              <div class="expense-item-left">
-                <div class="expense-item-icon" [class.high-value]="isHighValue(expense.value)">
+      <div class="modal-summary">
+        <div class="summary-item total">
+          <span class="summary-label">Total de Despesas</span>
+          <span class="summary-value expense">{{ totalExpenses$() | brlCurrency }}</span>
+        </div>
+        <div class="summary-item count">
+          <span class="summary-label">Quantidade</span>
+          <span class="summary-value">{{ expenses$().length }} registro(s)</span>
+        </div>
+        <div class="summary-filter">
+          <span class="summary-label">Filtrar</span>
+          <select
+            class="modal-filter-select"
+            [value]="selectedCategory$()"
+            (change)="onCategoryChange($any($event.target).value)"
+          >
+            @for (category of categories; track category) {
+              <option [value]="category">{{ category }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        @if (expenses$().length > 0) {
+          <div class="extrato-list">
+            @for (expense of expenses$(); track expense.id) {
+              <div class="extrato-item" [class.high-value]="isHighValue(expense.value)">
+                <div class="extrato-date">
+                  <span class="date-day">{{ expense.date | date:'dd' }}</span>
+                  <span class="date-month">{{ expense.date | date:'MMM' }}</span>
+                </div>
+                <div class="extrato-icon" [class.high-value]="isHighValue(expense.value)">
                   {{ getCategoryEmoji(expense.category) }}
                 </div>
-                <div class="expense-item-info">
-                  <span class="expense-item-description">{{ expense.description }}</span>
-                  <div class="expense-item-meta">
-                    <span class="expense-item-category">{{ expense.category }}</span>
-                    <span class="expense-item-dot">•</span>
-                    <span class="expense-item-date">{{ expense.date | date: 'dd/MM' }}</span>
-                    <span class="expense-item-dot">•</span>
-                    <span class="expense-item-payment" [class.credit]="expense.paymentType === 'crédito'">
+                <div class="extrato-info">
+                  <span class="extrato-desc">{{ expense.description }}</span>
+                  <div class="extrato-meta">
+                    <span class="extrato-category">{{ expense.category }}</span>
+                    <span class="extrato-payment" [class.credit]="expense.paymentType === 'crédito'">
                       {{ expense.paymentType === 'crédito' ? 'Crédito' : 'À Vista' }}
                     </span>
+                    @if (expense.expenseType === 'fixa') {
+                      <span class="extrato-type">Fixa</span>
+                    }
                   </div>
                 </div>
-              </div>
-              <div class="expense-item-right">
-                <span class="expense-item-value">{{ expense.value | brlCurrency }}</span>
-                <button
-                  type="button"
-                  class="btn-remove"
-                  (click)="removeExpense(expense.id)"
-                  title="Remover despesa"
-                >
+                <div class="extrato-value">
+                  <span class="value-amount">- {{ expense.value | brlCurrency }}</span>
+                </div>
+                <button class="btn-delete" (click)="removeExpense(expense.id)" title="Remover">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="3 6 5 6 21 6"/>
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                   </svg>
                 </button>
               </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <div class="empty-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="15" y1="9" x2="9" y2="15"/>
+                <line x1="9" y1="9" x2="15" y2="15"/>
+              </svg>
             </div>
-          }
+            <p class="empty-title">Nenhuma despesa encontrada</p>
+            <p class="empty-desc">
+              @if (selectedCategory$() !== 'Todas') {
+                Não há despesas na categoria "{{ selectedCategory$() }}"
+              } @else {
+                Adicione despesas usando o formulário
+              }
+            </p>
+          </div>
         }
       </div>
 
-      @if (expenses$().length > 5) {
-        <div class="list-footer">
-          <span class="list-more">+ {{ expenses$().length - 5 }} despesas</span>
+      @if (allExpenses$().length > 0) {
+        <div class="modal-footer">
+          <button class="btn-clear-all" (click)="clearAll()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+            Limpar todas as despesas
+          </button>
         </div>
       }
-
-      <button type="button" class="btn-clear" (click)="clearAll()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="3 6 5 6 21 6"/>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-        </svg>
-        Limpar Todas
-      </button>
     </div>
-  }
-</div>
+  </div>
+}
