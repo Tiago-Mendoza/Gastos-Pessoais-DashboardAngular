@@ -1,0 +1,30 @@
+<div class="chart-container">
+  <div class="chart-card">
+    <div class="chart-header">
+      <h2>📊 Gastos por Categoria</h2>
+      <p class="chart-subtitle">Visualização dos seus gastos agrupados por categoria</p>
+    </div>
+
+    @if (hasData()) {
+      <div class="chart-wrapper">
+        <canvas #chartCanvas></canvas>
+      </div>
+      
+      <div class="chart-summary">
+        <p class="summary-text">
+          <strong>Total geral:</strong> {{ totalExpenses$() | brlCurrency }}
+        </p>
+      </div>
+    } @else {
+      <div class="empty-chart">
+        <p class="empty-icon">📊</p>
+        <p class="empty-message">
+          Não há dados suficientes para exibir o gráfico.
+        </p>
+        <p class="empty-hint">
+          Adicione algumas despesas para ver a distribuição por categoria.
+        </p>
+      </div>
+    }
+  </div>
+</div>
