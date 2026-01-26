@@ -1,27 +1,27 @@
 .expense-card {
   background: white;
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-5);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-3);
   border: 1px solid var(--gray-200);
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-5);
+  gap: var(--spacing-3);
 }
 
 .expense-header {
   display: flex;
   align-items: center;
-  gap: var(--spacing-3);
-  padding-bottom: var(--spacing-4);
+  gap: var(--spacing-2);
+  padding-bottom: var(--spacing-2);
   border-bottom: 1px solid var(--gray-100);
 }
 
 .expense-icon {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   background: var(--danger-50);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -35,7 +35,7 @@
 }
 
 .expense-title {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--gray-900);
   margin: 0;
@@ -51,18 +51,18 @@
 .expense-form {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4);
+  gap: var(--spacing-2);
 }
 
 .form-row {
   display: flex;
-  gap: var(--spacing-3);
+  gap: var(--spacing-2);
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2);
+  gap: var(--spacing-1);
 }
 
 .form-group.flex-1 {
@@ -83,9 +83,9 @@
 
 .form-group input,
 .form-group select {
-  padding: var(--spacing-3);
+  padding: var(--spacing-2);
   border: 1px solid var(--gray-200);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
   transition: all var(--transition-fast);
   background: var(--gray-50);
@@ -114,7 +114,7 @@
   align-items: center;
   background: var(--gray-50);
   border: 1px solid var(--gray-200);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   transition: all var(--transition-fast);
 }
 
@@ -129,7 +129,7 @@
 }
 
 .input-prefix {
-  padding: var(--spacing-3);
+  padding: var(--spacing-2);
   padding-right: 0;
   font-size: var(--font-size-sm);
   font-weight: 500;
@@ -152,9 +152,9 @@
 .btn-group-type {
   display: flex;
   background: var(--gray-100);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-1);
-  gap: var(--spacing-1);
+  border-radius: var(--radius-md);
+  padding: 2px;
+  gap: 2px;
 }
 
 .btn-payment,
@@ -163,11 +163,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-1);
-  padding: var(--spacing-2) var(--spacing-3);
+  gap: 4px;
+  padding: var(--spacing-1) var(--spacing-2);
   background: transparent;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   font-size: var(--font-size-xs);
   font-weight: 500;
   color: var(--gray-600);
@@ -201,12 +201,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-2);
-  padding: var(--spacing-3) var(--spacing-4);
+  gap: var(--spacing-1);
+  padding: var(--spacing-2) var(--spacing-3);
   background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
   color: white;
   border: none;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
   font-weight: 600;
   cursor: pointer;
@@ -226,8 +226,8 @@
 .expense-list-section {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3);
-  padding-top: var(--spacing-4);
+  gap: var(--spacing-2);
+  padding-top: var(--spacing-2);
   border-top: 1px solid var(--gray-100);
 }
 
@@ -262,16 +262,16 @@
 .expense-list {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2);
+  gap: var(--spacing-1);
 }
 
 .expense-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-3);
+  padding: var(--spacing-2);
   background: var(--gray-50);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   border: 1px solid var(--gray-100);
   transition: all var(--transition-fast);
 }
@@ -296,14 +296,14 @@
 }
 
 .expense-item-icon {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   background: var(--gray-100);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   flex-shrink: 0;
 }
 
@@ -371,14 +371,14 @@
 }
 
 .btn-remove {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--danger-50);
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   color: var(--danger-500);
   cursor: pointer;
   transition: all var(--transition-fast);

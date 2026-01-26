@@ -53,20 +53,20 @@ Chart.register(...registerables);
   `,
   styles: [`
     .histogram-card {
-      padding: var(--spacing-5);
+      padding: var(--spacing-3);
       display: flex;
       flex-direction: column;
       height: 100%;
-      min-height: 320px;
+      min-height: 240px;
     }
 
     .histogram-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: var(--spacing-4);
+      margin-bottom: var(--spacing-2);
       flex-wrap: wrap;
-      gap: var(--spacing-3);
+      gap: var(--spacing-2);
     }
 
     .histogram-title-section {
@@ -111,7 +111,7 @@ Chart.register(...registerables);
     .histogram-wrapper {
       flex: 1;
       position: relative;
-      min-height: 200px;
+      min-height: 140px;
     }
 
     .histogram-wrapper canvas {

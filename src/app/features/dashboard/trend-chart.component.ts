@@ -47,20 +47,20 @@ Chart.register(...registerables);
   `,
   styles: [`
     .trend-card {
-      padding: var(--spacing-5);
+      padding: var(--spacing-3);
       display: flex;
       flex-direction: column;
       height: 100%;
-      min-height: 320px;
+      min-height: 240px;
     }
 
     .trend-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: var(--spacing-4);
+      margin-bottom: var(--spacing-2);
       flex-wrap: wrap;
-      gap: var(--spacing-3);
+      gap: var(--spacing-2);
     }
 
     .trend-title-section {
@@ -105,7 +105,7 @@ Chart.register(...registerables);
     .trend-wrapper {
       flex: 1;
       position: relative;
-      min-height: 200px;
+      min-height: 140px;
     }
 
     .trend-wrapper canvas {

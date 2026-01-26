@@ -12,7 +12,7 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
       <!-- Total Geral -->
       <div class="kpi-card">
         <div class="kpi-icon total">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"/>
             <path d="M12 6v12M8 10h8M8 14h8"/>
           </svg>
@@ -22,7 +22,7 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
           <span class="kpi-value">{{ totalExpenses$() | brlCurrency }}</span>
         </div>
         <div class="kpi-trend neutral">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
           </svg>
         </div>
@@ -31,7 +31,7 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
       <!-- Débito -->
       <div class="kpi-card">
         <div class="kpi-icon debit">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
             <line x1="1" y1="10" x2="23" y2="10"/>
           </svg>
@@ -46,7 +46,7 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
       <!-- Crédito -->
       <div class="kpi-card">
         <div class="kpi-icon credit">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
             <line x1="1" y1="10" x2="23" y2="10"/>
             <path d="M7 15h0m4 0h0m4 0h0"/>
@@ -64,23 +64,24 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: var(--spacing-4);
+      gap: var(--spacing-2);
       height: 100%;
     }
 
     .kpi-card {
       background: white;
-      border-radius: var(--radius-xl);
-      padding: var(--spacing-4);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-2);
       border: 1px solid var(--gray-200);
       box-shadow: var(--shadow-sm);
       display: flex;
       align-items: center;
-      gap: var(--spacing-3);
+      gap: var(--spacing-1);
       transition: all var(--transition-base);
       position: relative;
       overflow: hidden;
       flex: 1;
+      min-height: 70px;
     }
 
     .kpi-card::before {
@@ -111,9 +112,9 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
     }
 
     .kpi-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: var(--radius-lg);
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -143,25 +144,28 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
     }
 
     .kpi-label {
-      font-size: var(--font-size-sm);
+      font-size: var(--font-size-xs);
       font-weight: 500;
       color: var(--gray-500);
+      line-height: 1.2;
     }
 
     .kpi-value {
-      font-size: var(--font-size-xl);
+      font-size: var(--font-size-base);
       font-weight: 700;
       color: var(--gray-900);
       letter-spacing: -0.02em;
+      line-height: 1.2;
     }
 
     .kpi-trend {
-      width: 32px;
-      height: 32px;
+      width: 24px;
+      height: 24px;
       border-radius: var(--radius-full);
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
     }
 
     .kpi-trend.neutral {
@@ -170,10 +174,12 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
     }
 
     .kpi-badge {
-      padding: var(--spacing-1) var(--spacing-2);
+      padding: 2px 6px;
       border-radius: var(--radius-full);
-      font-size: var(--font-size-xs);
+      font-size: 10px;
       font-weight: 600;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .kpi-badge.debit {

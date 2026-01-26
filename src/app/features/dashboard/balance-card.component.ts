@@ -11,7 +11,7 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
     <div class="balance-card" [class.positive]="balance$() >= 0" [class.negative]="balance$() < 0">
       <div class="balance-header">
         <div class="balance-icon" [class.positive]="balance$() >= 0" [class.negative]="balance$() < 0">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             @if (balance$() >= 0) {
               <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
               <polyline points="17 6 23 6 23 12"/>
@@ -59,15 +59,16 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
   styles: [`
     .balance-card {
       background: white;
-      border-radius: var(--radius-xl);
-      padding: var(--spacing-5);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-2);
       border: 1px solid var(--gray-200);
       box-shadow: var(--shadow-sm);
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-4);
+      gap: var(--spacing-1);
       transition: all var(--transition-base);
       height: 100%;
+      min-height: 70px;
     }
 
     .balance-card:hover {
@@ -86,16 +87,17 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
     .balance-header {
       display: flex;
       align-items: center;
-      gap: var(--spacing-3);
+      gap: var(--spacing-1);
     }
 
     .balance-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: var(--radius-lg);
+      width: 24px;
+      height: 24px;
+      border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
     }
 
     .balance-icon.positive {
@@ -109,15 +111,17 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
     }
 
     .balance-title {
-      font-size: var(--font-size-sm);
+      font-size: var(--font-size-xs);
       font-weight: 600;
       color: var(--gray-600);
+      line-height: 1.2;
     }
 
     .balance-amount {
-      font-size: var(--font-size-2xl);
+      font-size: var(--font-size-base);
       font-weight: 800;
       letter-spacing: -0.02em;
+      line-height: 1.2;
     }
 
     .balance-amount.positive {
@@ -131,22 +135,23 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
     .balance-breakdown {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-2);
-      padding: var(--spacing-3);
+      gap: 4px;
+      padding: var(--spacing-1);
       background: var(--gray-50);
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius-sm);
     }
 
     .breakdown-item {
       display: flex;
       align-items: center;
-      gap: var(--spacing-2);
+      gap: 4px;
     }
 
     .breakdown-dot {
-      width: 8px;
-      height: 8px;
+      width: 6px;
+      height: 6px;
       border-radius: var(--radius-full);
+      flex-shrink: 0;
     }
 
     .breakdown-dot.income {
@@ -159,13 +164,15 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 
     .breakdown-label {
       flex: 1;
-      font-size: var(--font-size-sm);
+      font-size: var(--font-size-xs);
       color: var(--gray-600);
+      line-height: 1.2;
     }
 
     .breakdown-value {
-      font-size: var(--font-size-sm);
+      font-size: var(--font-size-xs);
       font-weight: 600;
+      line-height: 1.2;
     }
 
     .breakdown-value.income {
@@ -179,11 +186,11 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
     .balance-indicator {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-2);
+      gap: 4px;
     }
 
     .indicator-bar {
-      height: 6px;
+      height: 4px;
       background: var(--gray-200);
       border-radius: var(--radius-full);
       overflow: hidden;
@@ -204,9 +211,10 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
     }
 
     .indicator-label {
-      font-size: var(--font-size-xs);
+      font-size: 10px;
       color: var(--gray-500);
       font-weight: 500;
+      line-height: 1.2;
     }
   `]
 })

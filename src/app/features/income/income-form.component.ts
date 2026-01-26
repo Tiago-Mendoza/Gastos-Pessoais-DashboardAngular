@@ -65,8 +65,8 @@ import { ExpenseService } from '../../core/services/expense.service';
   styles: [`
     .income-card {
       background: white;
-      border-radius: var(--radius-xl);
-      padding: var(--spacing-5);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-3);
       border: 1px solid var(--gray-200);
       box-shadow: var(--shadow-sm);
       height: 100%;
@@ -77,17 +77,17 @@ import { ExpenseService } from '../../core/services/expense.service';
     .income-header {
       display: flex;
       align-items: center;
-      gap: var(--spacing-3);
-      margin-bottom: var(--spacing-5);
-      padding-bottom: var(--spacing-4);
+      gap: var(--spacing-2);
+      margin-bottom: var(--spacing-3);
+      padding-bottom: var(--spacing-2);
       border-bottom: 1px solid var(--gray-100);
     }
 
     .income-icon {
-      width: 40px;
-      height: 40px;
+      width: 32px;
+      height: 32px;
       background: var(--success-50);
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius-md);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -101,7 +101,7 @@ import { ExpenseService } from '../../core/services/expense.service';
     }
 
     .income-title {
-      font-size: var(--font-size-base);
+      font-size: var(--font-size-sm);
       font-weight: 600;
       color: var(--gray-900);
       margin: 0;
@@ -116,14 +116,14 @@ import { ExpenseService } from '../../core/services/expense.service';
     .income-form {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-4);
+      gap: var(--spacing-2);
       flex: 1;
     }
 
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-2);
+      gap: var(--spacing-1);
     }
 
     .form-group label {
@@ -133,9 +133,9 @@ import { ExpenseService } from '../../core/services/expense.service';
     }
 
     .form-group input {
-      padding: var(--spacing-3);
+      padding: var(--spacing-2);
       border: 1px solid var(--gray-200);
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius-md);
       font-size: var(--font-size-sm);
       transition: all var(--transition-fast);
       background: var(--gray-50);
@@ -161,7 +161,7 @@ import { ExpenseService } from '../../core/services/expense.service';
       align-items: center;
       background: var(--gray-50);
       border: 1px solid var(--gray-200);
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius-md);
       transition: all var(--transition-fast);
     }
 
@@ -176,7 +176,7 @@ import { ExpenseService } from '../../core/services/expense.service';
     }
 
     .input-prefix {
-      padding: var(--spacing-3);
+      padding: var(--spacing-2);
       padding-right: 0;
       font-size: var(--font-size-sm);
       font-weight: 500;
@@ -197,12 +197,12 @@ import { ExpenseService } from '../../core/services/expense.service';
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: var(--spacing-2);
-      padding: var(--spacing-3) var(--spacing-4);
+      gap: var(--spacing-1);
+      padding: var(--spacing-2) var(--spacing-3);
       background: linear-gradient(135deg, var(--success-500), var(--success-600));
       color: white;
       border: none;
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius-md);
       font-size: var(--font-size-sm);
       font-weight: 600;
       cursor: pointer;

@@ -61,8 +61,8 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
   styles: [`
     .due-dates-card {
       background: white;
-      border-radius: var(--radius-xl);
-      padding: var(--spacing-5);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-3);
       border: 1px solid var(--gray-200);
       box-shadow: var(--shadow-sm);
       height: 100%;
@@ -73,17 +73,17 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
     .due-dates-header {
       display: flex;
       align-items: center;
-      gap: var(--spacing-3);
-      margin-bottom: var(--spacing-5);
-      padding-bottom: var(--spacing-4);
+      gap: var(--spacing-2);
+      margin-bottom: var(--spacing-3);
+      padding-bottom: var(--spacing-2);
       border-bottom: 1px solid var(--gray-100);
     }
 
     .due-dates-icon {
-      width: 40px;
-      height: 40px;
+      width: 32px;
+      height: 32px;
       background: var(--warning-50);
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius-md);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -97,7 +97,7 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
     }
 
     .due-dates-title {
-      font-size: var(--font-size-base);
+      font-size: var(--font-size-sm);
       font-weight: 600;
       color: var(--gray-900);
       margin: 0;
@@ -112,7 +112,7 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
     .due-dates-list {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-3);
+      gap: var(--spacing-2);
       flex: 1;
       overflow-y: auto;
     }
@@ -120,8 +120,8 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
     .due-date-item {
       display: flex;
       align-items: center;
-      gap: var(--spacing-3);
-      padding: var(--spacing-3);
+      gap: var(--spacing-2);
+      padding: var(--spacing-2);
       background: var(--gray-50);
       border-radius: var(--radius-lg);
       border: 1px solid var(--gray-100);
@@ -139,16 +139,16 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
     }
 
     .due-date-day {
-      width: 48px;
-      height: 48px;
+      width: 40px;
+      height: 40px;
       background: linear-gradient(135deg, var(--warning-500), var(--warning-600));
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius-md);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       color: white;
-      font-size: var(--font-size-lg);
+      font-size: var(--font-size-base);
       font-weight: 700;
       line-height: 1;
     }

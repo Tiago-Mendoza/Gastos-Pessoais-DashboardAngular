@@ -337,12 +337,12 @@ import { CommonModule } from '@angular/common';
     /* Top Header */
     .top-header {
       background: white;
-      padding: var(--spacing-4) var(--spacing-6);
+      padding: var(--spacing-3) var(--spacing-4);
       border-bottom: 1px solid var(--gray-200);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: var(--spacing-6);
+      gap: var(--spacing-4);
       position: sticky;
       top: 0;
       z-index: 50;
@@ -355,7 +355,7 @@ import { CommonModule } from '@angular/common';
     }
 
     .page-title {
-      font-size: var(--font-size-xl);
+      font-size: var(--font-size-lg);
       font-weight: 700;
       color: var(--gray-900);
       margin: 0;
@@ -474,9 +474,9 @@ import { CommonModule } from '@angular/common';
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      padding: var(--spacing-3) var(--spacing-4);
+      padding: var(--spacing-2) var(--spacing-3);
       background: linear-gradient(135deg, var(--primary-50), var(--primary-100));
-      border-radius: var(--radius-xl);
+      border-radius: var(--radius-lg);
       border: 1px solid var(--primary-200);
     }
 
@@ -489,7 +489,7 @@ import { CommonModule } from '@angular/common';
     }
 
     .quick-stat-value {
-      font-size: var(--font-size-lg);
+      font-size: var(--font-size-base);
       font-weight: 700;
       color: var(--primary-700);
       letter-spacing: -0.02em;
@@ -498,17 +498,19 @@ import { CommonModule } from '@angular/common';
     /* Dashboard Content */
     .dashboard-content {
       flex: 1;
-      padding: var(--spacing-6);
+      padding: var(--spacing-4);
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-6);
+      gap: var(--spacing-4);
+      max-width: 100%;
+      overflow-x: hidden;
     }
 
     /* Metrics Section */
     .metrics-section {
       display: grid;
-      grid-template-columns: 1fr 300px;
-      gap: var(--spacing-5);
+      grid-template-columns: 1fr 220px;
+      gap: var(--spacing-2);
       align-items: stretch;
     }
 
@@ -528,12 +530,12 @@ import { CommonModule } from '@angular/common';
     .charts-section {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: var(--spacing-5);
+      gap: var(--spacing-3);
     }
 
     .chart-card-wrapper {
       background: white;
-      border-radius: var(--radius-xl);
+      border-radius: var(--radius-lg);
       border: 1px solid var(--gray-200);
       box-shadow: var(--shadow-sm);
       overflow: hidden;
@@ -548,20 +550,44 @@ import { CommonModule } from '@angular/common';
     /* Management Section */
     .management-section {
       display: grid;
-      grid-template-columns: 1fr 2fr 1fr;
-      gap: var(--spacing-5);
+      grid-template-columns: 300px 1fr 260px;
+      gap: var(--spacing-3);
+      align-items: start;
     }
 
     .management-card-wrapper {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-4);
+      gap: var(--spacing-2);
     }
 
     .forms-wrapper {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: var(--spacing-4);
+      gap: var(--spacing-2);
+      align-items: start;
+    }
+
+    /* Desktop Otimizado - Telas grandes */
+    @media (min-width: 1600px) {
+      .dashboard-content {
+        padding: var(--spacing-5);
+      }
+      
+      .metrics-section {
+        grid-template-columns: 1fr 280px;
+      }
+      
+      .management-section {
+        grid-template-columns: 320px 1fr 280px;
+      }
+    }
+
+    /* Desktop Médio */
+    @media (max-width: 1599px) and (min-width: 1200px) {
+      .management-section {
+        grid-template-columns: 280px 1fr 240px;
+      }
     }
 
     /* Responsive */

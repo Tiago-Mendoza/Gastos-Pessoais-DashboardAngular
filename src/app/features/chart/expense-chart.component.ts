@@ -54,18 +54,18 @@ Chart.register(...registerables);
   `,
   styles: [`
     .chart-card {
-      padding: var(--spacing-5);
+      padding: var(--spacing-3);
       display: flex;
       flex-direction: column;
       height: 100%;
-      min-height: 320px;
+      min-height: 240px;
     }
 
     .chart-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: var(--spacing-4);
+      margin-bottom: var(--spacing-2);
     }
 
     .chart-title-section {
@@ -75,7 +75,7 @@ Chart.register(...registerables);
     }
 
     .chart-title {
-      font-size: var(--font-size-base);
+      font-size: var(--font-size-sm);
       font-weight: 600;
       color: var(--gray-900);
       margin: 0;
@@ -91,13 +91,13 @@ Chart.register(...registerables);
       flex: 1;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: var(--spacing-4);
+      gap: var(--spacing-2);
       align-items: center;
     }
 
     .chart-wrapper {
       position: relative;
-      height: 180px;
+      height: 140px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -150,9 +150,9 @@ Chart.register(...registerables);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-top: var(--spacing-4);
+      padding-top: var(--spacing-2);
       border-top: 1px solid var(--gray-100);
-      margin-top: var(--spacing-4);
+      margin-top: var(--spacing-2);
     }
 
     .total-label {

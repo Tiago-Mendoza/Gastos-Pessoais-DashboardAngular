@@ -74,8 +74,8 @@ import { FormsModule } from '@angular/forms';
   styles: [`
     .budget-card {
       background: white;
-      border-radius: var(--radius-xl);
-      padding: var(--spacing-5);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-3);
       border: 1px solid var(--gray-200);
       box-shadow: var(--shadow-sm);
       height: 100%;
@@ -86,17 +86,17 @@ import { FormsModule } from '@angular/forms';
     .budget-header {
       display: flex;
       align-items: center;
-      gap: var(--spacing-3);
-      margin-bottom: var(--spacing-5);
-      padding-bottom: var(--spacing-4);
+      gap: var(--spacing-2);
+      margin-bottom: var(--spacing-3);
+      padding-bottom: var(--spacing-2);
       border-bottom: 1px solid var(--gray-100);
     }
 
     .budget-icon {
-      width: 40px;
-      height: 40px;
+      width: 32px;
+      height: 32px;
       background: var(--primary-50);
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius-md);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -110,7 +110,7 @@ import { FormsModule } from '@angular/forms';
     }
 
     .budget-title {
-      font-size: var(--font-size-base);
+      font-size: var(--font-size-sm);
       font-weight: 600;
       color: var(--gray-900);
       margin: 0;
@@ -125,14 +125,14 @@ import { FormsModule } from '@angular/forms';
     .budget-list {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-4);
+      gap: var(--spacing-2);
       flex: 1;
       overflow-y: auto;
     }
 
     .budget-item {
-      padding: var(--spacing-3);
-      border-radius: var(--radius-lg);
+      padding: var(--spacing-2);
+      border-radius: var(--radius-md);
       background: var(--gray-50);
       border: 1px solid var(--gray-100);
       transition: all var(--transition-fast);
