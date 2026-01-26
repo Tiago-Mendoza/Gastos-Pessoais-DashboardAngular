@@ -3,13 +3,13 @@
  */
 export interface Expense {
   id: string;
-  description: string;
-  value: number;
-  category: string;
-  date: Date;
-  paymentType: 'débito' | 'crédito' | 'pix' | 'dinheiro';
-  expenseType?: 'fixa' | 'variável'; // Nova propriedade: tipo de despesa
-  dueDate?: Date; // Data de vencimento para despesas fixas
+  descricao: string;
+  valor: number;
+  categoria: string;
+  data: Date;
+  tipoPagamento: 'débito' | 'crédito' | 'pix' | 'dinheiro';
+  tipoDespesa?: 'fixa' | 'variável'; // Nova propriedade: tipo de despesa
+  dataVencimento?: Date; // Data de vencimento para despesas fixas
 }
 
 /**
@@ -17,38 +17,38 @@ export interface Expense {
  */
 export interface Income {
   id: string;
-  description: string;
-  value: number;
-  date: Date;
-  category?: string;
+  descricao: string;
+  valor: number;
+  data: Date;
+  categoria?: string;
 }
 
 /**
  * Modelo que representa um orçamento mensal por categoria
  */
 export interface Budget {
-  category: string;
-  monthlyLimit: number;
-  month: number; // 0-11 (janeiro a dezembro)
-  year: number;
+  categoria: string;
+  limiteMensal: number;
+  mes: number; // 0-11 (janeiro a dezembro)
+  ano: number;
 }
 
 /**
  * Categorias disponíveis para despesas
  */
-export const CATEGORIES = [
+export const CATEGORIAS = [
   'Alimentação',
   'Transporte',
   'Lazer',
   'Outros'
 ] as const;
 
-export type Category = typeof CATEGORIES[number];
+export type Categoria = typeof CATEGORIAS[number];
 
 /**
  * Interface para dados do gráfico
  */
-export interface ChartData {
-  category: string;
+export interface DadosGrafico {
+  categoria: string;
   total: number;
 }

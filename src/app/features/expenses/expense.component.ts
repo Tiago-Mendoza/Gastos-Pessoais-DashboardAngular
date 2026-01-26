@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ExpenseService } from '../../core/services/expense.service';
-import { CATEGORIES } from '../../models/expense.model';
+import { CATEGORIAS } from '../../models/expense.model';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 
 @Component({
@@ -15,32 +15,32 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 export class ExpenseComponent {
   private expenseService = inject(ExpenseService);
 
-  expenses$ = this.expenseService.filteredExpenses$;
-  allExpenses$ = this.expenseService.expenses$;
-  totalExpenses$ = this.expenseService.totalExpenses$;
-  selectedCategory$ = this.expenseService.selectedCategory$;
+  despesas$ = this.expenseService.despesasFiltradas$;
+  todasDespesas$ = this.expenseService.expenses$;
+  totalDespesas$ = this.expenseService.totalDespesas$;
+  categoriaSelecionada$ = this.expenseService.categoriaSelecionada$;
   
-  showModal = signal(false);
+  mostrarModal = signal(false);
 
-  categories = ['Todas', ...CATEGORIES];
-  readonly CATEGORIES = CATEGORIES;
+  categorias = ['Todas', ...CATEGORIAS];
+  readonly CATEGORIAS = CATEGORIAS;
 
-  description = '';
-  value = 0;
-  selectedCategory = CATEGORIES[0];
-  paymentType: 'débito' | 'crédito' | 'pix' = 'débito';
-  expenseType: 'fixa' | 'variável' = 'variável';
-  dueDate: string = '';
-  expenseMonth: string = this.getCurrentMonthYear();
+  descricao = '';
+  valor = 0;
+  categoriaSelecionada = CATEGORIAS[0];
+  tipoPagamento: 'débito' | 'crédito' | 'pix' = 'débito';
+  tipoDespesa: 'fixa' | 'variável' = 'variável';
+  dataVencimento: string = '';
+  mesDespesa: string = this.obterMesAnoAtual();
 
-  private getCurrentMonthYear(): string {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    return `${year}-${month}`;
+  private obterMesAnoAtual(): string {
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+    return `${ano}-${mes}`;
   }
 
-  private readonly categoryEmojis: { [key: string]: string } = {
+  private readonly emojisCategoria: { [key: string]: string } = {
     'Alimentação': '🍔',
     'Transporte': '🚗',
     'Lazer': '🎮',
@@ -50,74 +50,74 @@ export class ExpenseComponent {
     'Outros': '📦'
   };
 
-  selectDebitoPix(): void {
-    if (this.paymentType === 'débito') {
-      this.paymentType = 'pix';
+  selecionarDebitoPix(): void {
+    if (this.tipoPagamento === 'débito') {
+      this.tipoPagamento = 'pix';
     } else {
-      this.paymentType = 'débito';
+      this.tipoPagamento = 'débito';
     }
   }
 
-  addExpense(): void {
-    if (!this.description.trim() || this.value <= 0) {
+  adicionarDespesa(): void {
+    if (!this.descricao.trim() || this.valor <= 0) {
       return;
     }
 
-    const dueDateObj = this.expenseType === 'fixa' && this.dueDate ? new Date(this.dueDate) : undefined;
+    const dataVencimentoObj = this.tipoDespesa === 'fixa' && this.dataVencimento ? new Date(this.dataVencimento) : undefined;
     
     // Cria uma data a partir do mês/ano selecionado (primeiro dia do mês)
-    let expenseDateObj: Date | undefined = undefined;
-    if (this.expenseMonth) {
-      const [year, month] = this.expenseMonth.split('-').map(Number);
-      expenseDateObj = new Date(year, month - 1, 1); // mês - 1 porque Date usa 0-11
+    let dataDespesaObj: Date | undefined = undefined;
+    if (this.mesDespesa) {
+      const [ano, mes] = this.mesDespesa.split('-').map(Number);
+      dataDespesaObj = new Date(ano, mes - 1, 1); // mês - 1 porque Date usa 0-11
     }
 
-    this.expenseService.addExpense(
-      this.description.trim(),
-      this.value,
-      this.selectedCategory,
-      this.paymentType,
-      this.expenseType,
-      dueDateObj,
-      expenseDateObj
+    this.expenseService.adicionarDespesa(
+      this.descricao.trim(),
+      this.valor,
+      this.categoriaSelecionada,
+      this.tipoPagamento,
+      this.tipoDespesa,
+      dataVencimentoObj,
+      dataDespesaObj
     );
 
-    this.description = '';
-    this.value = 0;
-    this.selectedCategory = CATEGORIES[0];
-    this.paymentType = 'débito';
-    this.expenseType = 'variável';
-    this.dueDate = '';
-    this.expenseMonth = this.getCurrentMonthYear();
+    this.descricao = '';
+    this.valor = 0;
+    this.categoriaSelecionada = CATEGORIAS[0];
+    this.tipoPagamento = 'débito';
+    this.tipoDespesa = 'variável';
+    this.dataVencimento = '';
+    this.mesDespesa = this.obterMesAnoAtual();
   }
 
-  removeExpense(id: string): void {
-    this.expenseService.removeExpense(id);
+  removerDespesa(id: string): void {
+    this.expenseService.removerDespesa(id);
   }
 
-  clearAll(): void {
+  limparTodas(): void {
     if (confirm('Tem certeza que deseja remover todas as despesas?')) {
-      this.expenseService.clearAllExpenses();
+      this.expenseService.limparTodasDespesas();
     }
   }
 
-  onCategoryChange(category: string): void {
-    this.expenseService.setCategoryFilter(category);
+  aoMudarCategoria(categoria: string): void {
+    this.expenseService.definirFiltroCategoria(categoria);
   }
 
-  isHighValue(value: number): boolean {
-    return value > 500;
+  ehAltoValor(valor: number): boolean {
+    return valor > 500;
   }
 
-  getCategoryEmoji(category: string): string {
-    return this.categoryEmojis[category] || '📦';
+  obterEmojiCategoria(categoria: string): string {
+    return this.emojisCategoria[categoria] || '📦';
   }
 
-  openModal(): void {
-    this.showModal.set(true);
+  abrirModal(): void {
+    this.mostrarModal.set(true);
   }
 
-  closeModal(): void {
-    this.showModal.set(false);
+  fecharModal(): void {
+    this.mostrarModal.set(false);
   }
 }

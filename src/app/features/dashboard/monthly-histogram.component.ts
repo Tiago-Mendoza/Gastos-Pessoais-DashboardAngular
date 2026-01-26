@@ -32,7 +32,7 @@ Chart.register(...registerables);
         </div>
       </div>
 
-      @if (hasData()) {
+      @if (temDados()) {
         <div class="histogram-wrapper">
           <canvas #histogramCanvas></canvas>
         </div>
@@ -158,66 +158,66 @@ Chart.register(...registerables);
 export class MonthlyHistogramComponent implements AfterViewInit, OnDestroy {
   private expenseService = inject(ExpenseService);
   
-  monthlyData$ = this.expenseService.monthlyHistogramData$;
+  dadosMensais$ = this.expenseService.dadosHistogramaMensal$;
   canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('histogramCanvas');
-  private chartInstance = signal<Chart | null>(null);
-  private previousDataLength = 0;
+  private instanciaGrafico = signal<Chart | null>(null);
+  private tamanhoDadosAnterior = 0;
 
   constructor() {
     effect(() => {
-      const data = this.monthlyData$();
-      const chart = this.chartInstance();
+      const dados = this.dadosMensais$();
+      const grafico = this.instanciaGrafico();
       const canvas = this.canvasRef();
       
       setTimeout(() => {
-        if (data.length > 0 && canvas) {
-          if (this.previousDataLength === 0 && chart) {
-            chart.destroy();
-            this.chartInstance.set(null);
-            this.createChart();
-          } else if (chart) {
-            this.updateChart();
+        if (dados.length > 0 && canvas) {
+          if (this.tamanhoDadosAnterior === 0 && grafico) {
+            grafico.destroy();
+            this.instanciaGrafico.set(null);
+            this.criarGrafico();
+          } else if (grafico) {
+            this.atualizarGrafico();
           } else {
-            this.createChart();
+            this.criarGrafico();
           }
-        } else if (chart && data.length === 0) {
-          chart.data = { labels: [], datasets: [] };
-          chart.update();
+        } else if (grafico && dados.length === 0) {
+          grafico.data = { labels: [], datasets: [] };
+          grafico.update();
         }
-        this.previousDataLength = data.length;
+        this.tamanhoDadosAnterior = dados.length;
       }, 0);
     });
   }
 
   ngAfterViewInit(): void {
-    if (this.hasData()) {
-      this.createChart();
+    if (this.temDados()) {
+      this.criarGrafico();
     }
   }
 
   ngOnDestroy(): void {
-    const chart = this.chartInstance();
-    if (chart) {
-      chart.destroy();
+    const grafico = this.instanciaGrafico();
+    if (grafico) {
+      grafico.destroy();
     }
   }
 
-  hasData(): boolean {
-    return this.monthlyData$().length > 0;
+  temDados(): boolean {
+    return this.dadosMensais$().length > 0;
   }
 
-  private createChart(): void {
+  private criarGrafico(): void {
     const canvas = this.canvasRef()?.nativeElement;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const data = this.getChartJSData();
+    const dados = this.obterDadosChartJS();
     
     const config: ChartConfiguration<'bar'> = {
       type: 'bar',
-      data: data,
+      data: dados,
       options: {
         responsive: true,
         maintainAspectRatio: false,
@@ -253,13 +253,13 @@ export class MonthlyHistogramComponent implements AfterViewInit, OnDestroy {
             ticks: {
               font: { size: 11 },
               color: '#64748b',
-              callback: (value) => {
+              callback: (valor) => {
                 return new Intl.NumberFormat('pt-BR', {
                   style: 'currency',
                   currency: 'BRL',
                   notation: 'compact',
                   maximumFractionDigits: 0
-                }).format(value as number);
+                }).format(valor as number);
               }
             }
           }
@@ -273,51 +273,51 @@ export class MonthlyHistogramComponent implements AfterViewInit, OnDestroy {
       }
     };
 
-    const chart = new Chart(ctx, config);
-    this.chartInstance.set(chart);
+    const grafico = new Chart(ctx, config);
+    this.instanciaGrafico.set(grafico);
   }
 
-  private updateChart(): void {
-    const chart = this.chartInstance();
-    if (!chart) {
-      this.createChart();
+  private atualizarGrafico(): void {
+    const grafico = this.instanciaGrafico();
+    if (!grafico) {
+      this.criarGrafico();
       return;
     }
 
-    const data = this.getChartJSData();
-    chart.data = data;
-    chart.update('active');
+    const dados = this.obterDadosChartJS();
+    grafico.data = dados;
+    grafico.update('active');
   }
 
-  private getChartJSData() {
-    const monthlyData = this.monthlyData$();
+  private obterDadosChartJS() {
+    const dadosMensais = this.dadosMensais$();
     
-    if (monthlyData.length === 0) {
+    if (dadosMensais.length === 0) {
       return { labels: [], datasets: [] };
     }
 
-    const labels = monthlyData.map(item => item.month);
+    const rotulos = dadosMensais.map(item => item.mes);
 
     return {
-      labels: labels,
+      labels: rotulos,
       datasets: [
         {
           label: 'Geral',
-          data: monthlyData.map(item => item.geral),
+          data: dadosMensais.map(item => item.geral),
           backgroundColor: '#3b82f6',
           borderRadius: 6,
           maxBarThickness: 24
         },
         {
           label: 'Débito',
-          data: monthlyData.map(item => item.debito),
+          data: dadosMensais.map(item => item.debito),
           backgroundColor: '#10b981',
           borderRadius: 6,
           maxBarThickness: 24
         },
         {
           label: 'Crédito',
-          data: monthlyData.map(item => item.credito),
+          data: dadosMensais.map(item => item.credito),
           backgroundColor: '#f59e0b',
           borderRadius: 6,
           maxBarThickness: 24

@@ -22,28 +22,28 @@ import { ExpenseService } from '../../core/services/expense.service';
         </div>
       </div>
 
-      <form (ngSubmit)="addIncome()" class="income-form">
+      <form (ngSubmit)="adicionarReceita()" class="income-form">
         <div class="form-group">
-          <label for="incomeDescription">Descrição</label>
+          <label for="descricaoReceita">Descrição</label>
           <input
             type="text"
-            id="incomeDescription"
-            [(ngModel)]="description"
-            name="incomeDescription"
+            id="descricaoReceita"
+            [(ngModel)]="descricao"
+            name="descricaoReceita"
             placeholder="Ex: Salário, Freelance"
             required
           />
         </div>
 
         <div class="form-group">
-          <label for="incomeValue">Valor</label>
+          <label for="valorReceita">Valor</label>
           <div class="input-with-prefix">
             <span class="input-prefix">R$</span>
             <input
               type="number"
-              id="incomeValue"
-              [(ngModel)]="value"
-              name="incomeValue"
+              id="valorReceita"
+              [(ngModel)]="valor"
+              name="valorReceita"
               placeholder="0,00"
               min="0.01"
               step="0.01"
@@ -223,17 +223,17 @@ import { ExpenseService } from '../../core/services/expense.service';
 export class IncomeFormComponent {
   private expenseService = inject(ExpenseService);
   
-  description = '';
-  value = 0;
+  descricao = '';
+  valor = 0;
 
-  addIncome(): void {
-    if (!this.description.trim() || this.value <= 0) {
+  adicionarReceita(): void {
+    if (!this.descricao.trim() || this.valor <= 0) {
       return;
     }
 
-    this.expenseService.addIncome(this.description.trim(), this.value);
+    this.expenseService.adicionarReceita(this.descricao.trim(), this.valor);
     
-    this.description = '';
-    this.value = 0;
+    this.descricao = '';
+    this.valor = 0;
   }
 }

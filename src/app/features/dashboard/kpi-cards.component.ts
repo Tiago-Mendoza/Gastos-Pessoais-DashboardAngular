@@ -19,7 +19,7 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
         </div>
         <div class="kpi-info">
           <span class="kpi-label">Total Geral</span>
-          <span class="kpi-value">{{ totalExpenses$() | brlCurrency }}</span>
+          <span class="kpi-value">{{ totalDespesas$() | brlCurrency }}</span>
         </div>
         <div class="kpi-trend neutral">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -202,7 +202,7 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 export class KpiCardsComponent {
   private expenseService = inject(ExpenseService);
 
-  totalExpenses$ = this.expenseService.totalExpenses$;
+  totalDespesas$ = this.expenseService.totalDespesas$;
   totalDebito$ = this.expenseService.totalDebito$;
   totalCredito$ = this.expenseService.totalCredito$;
 }

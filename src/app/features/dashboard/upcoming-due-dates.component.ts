@@ -24,22 +24,22 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
         </div>
       </div>
 
-      @if (upcomingDueDates$().length > 0) {
+      @if (proximosVencimentos$().length > 0) {
         <div class="due-dates-list">
-          @for (expense of upcomingDueDates$(); track expense.id) {
+          @for (despesa of proximosVencimentos$(); track despesa.id) {
             <div class="due-date-item">
               <div class="due-date-left">
                 <div class="due-date-day">
-                  {{ expense.dueDate! | date: 'dd' }}
-                  <span class="due-date-month">{{ expense.dueDate! | date: 'MMM' }}</span>
+                  {{ despesa.dataVencimento! | date: 'dd' }}
+                  <span class="due-date-month">{{ despesa.dataVencimento! | date: 'MMM' }}</span>
                 </div>
               </div>
               <div class="due-date-content">
-                <span class="due-date-description">{{ expense.description }}</span>
-                <span class="due-date-category">{{ expense.category }}</span>
+                <span class="due-date-description">{{ despesa.descricao }}</span>
+                <span class="due-date-category">{{ despesa.categoria }}</span>
               </div>
               <div class="due-date-value">
-                {{ expense.value | brlCurrency }}
+                {{ despesa.valor | brlCurrency }}
               </div>
             </div>
           }
@@ -228,5 +228,5 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 export class UpcomingDueDatesComponent {
   private expenseService = inject(ExpenseService);
   
-  upcomingDueDates$ = this.expenseService.upcomingDueDates$;
+  proximosVencimentos$ = this.expenseService.proximosVencimentos$;
 }

@@ -13,42 +13,42 @@
     </div>
     
     <!-- Botão para abrir modal de extrato -->
-    @if (allExpenses$().length > 0) {
-      <button class="btn-extrato" (click)="openModal()" title="Ver extrato de despesas">
+    @if (todasDespesas$().length > 0) {
+      <button class="btn-extrato" (click)="abrirModal()" title="Ver extrato de despesas">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
           <polyline points="14 2 14 8 20 8"/>
           <line x1="16" y1="13" x2="8" y2="13"/>
           <line x1="16" y1="17" x2="8" y2="17"/>
         </svg>
-        <span class="extrato-count">{{ allExpenses$().length }}</span>
+        <span class="extrato-count">{{ todasDespesas$().length }}</span>
       </button>
     }
   </div>
 
-  <form (ngSubmit)="addExpense()" class="expense-form">
+  <form (ngSubmit)="adicionarDespesa()" class="expense-form">
     <div class="form-row">
       <div class="form-group flex-2">
-        <label for="description">Descrição</label>
+        <label for="descricao">Descrição</label>
         <input
           type="text"
-          id="description"
-          [(ngModel)]="description"
-          name="description"
+          id="descricao"
+          [(ngModel)]="descricao"
+          name="descricao"
           placeholder="Ex: Almoço, Uber, Netflix"
           required
         />
       </div>
 
       <div class="form-group flex-1">
-        <label for="value">Valor</label>
+        <label for="valor">Valor</label>
         <div class="input-with-prefix">
           <span class="input-prefix">R$</span>
           <input
             type="number"
-            id="value"
-            [(ngModel)]="value"
-            name="value"
+            id="valor"
+            [(ngModel)]="valor"
+            name="valor"
             placeholder="0,00"
             min="0.01"
             step="0.01"
@@ -58,12 +58,12 @@
       </div>
 
       <div class="form-group flex-1">
-        <label for="expenseMonth">Mês</label>
+        <label for="mesDespesa">Mês</label>
         <input
           type="month"
-          id="expenseMonth"
-          [(ngModel)]="expenseMonth"
-          name="expenseMonth"
+          id="mesDespesa"
+          [(ngModel)]="mesDespesa"
+          name="mesDespesa"
           title="Selecione o mês da despesa"
         />
       </div>
@@ -71,15 +71,15 @@
 
     <div class="form-row">
       <div class="form-group flex-1">
-        <label for="category">Categoria</label>
+        <label for="categoria">Categoria</label>
         <select
-          id="category"
-          [(ngModel)]="selectedCategory"
-          name="category"
+          id="categoria"
+          [(ngModel)]="categoriaSelecionada"
+          name="categoria"
           required
         >
-          @for (category of CATEGORIES; track category) {
-            <option [value]="category">{{ category }}</option>
+          @for (categoria of CATEGORIAS; track categoria) {
+            <option [value]="categoria">{{ categoria }}</option>
           }
         </select>
       </div>
@@ -90,8 +90,8 @@
           <button
             type="button"
             class="btn-payment"
-            [class.active]="paymentType === 'débito' || paymentType === 'pix'"
-            (click)="selectDebitoPix()"
+            [class.active]="tipoPagamento === 'débito' || tipoPagamento === 'pix'"
+            (click)="selecionarDebitoPix()"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
@@ -102,8 +102,8 @@
           <button
             type="button"
             class="btn-payment credit"
-            [class.active]="paymentType === 'crédito'"
-            (click)="paymentType = 'crédito'"
+            [class.active]="tipoPagamento === 'crédito'"
+            (click)="tipoPagamento = 'crédito'"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
@@ -114,8 +114,8 @@
         </div>
         <input
           type="hidden"
-          [(ngModel)]="paymentType"
-          name="paymentType"
+          [(ngModel)]="tipoPagamento"
+          name="tipoPagamento"
           required
         />
       </div>
@@ -128,35 +128,35 @@
           <button
             type="button"
             class="btn-type"
-            [class.active]="expenseType === 'variável'"
-            (click)="expenseType = 'variável'"
+            [class.active]="tipoDespesa === 'variável'"
+            (click)="tipoDespesa = 'variável'"
           >
             Variável
           </button>
           <button
             type="button"
             class="btn-type"
-            [class.active]="expenseType === 'fixa'"
-            (click)="expenseType = 'fixa'"
+            [class.active]="tipoDespesa === 'fixa'"
+            (click)="tipoDespesa = 'fixa'"
           >
             Fixa
           </button>
         </div>
         <input
           type="hidden"
-          [(ngModel)]="expenseType"
-          name="expenseType"
+          [(ngModel)]="tipoDespesa"
+          name="tipoDespesa"
         />
       </div>
 
-      @if (expenseType === 'fixa') {
+      @if (tipoDespesa === 'fixa') {
         <div class="form-group flex-1">
-          <label for="dueDate">Vencimento</label>
+          <label for="dataVencimento">Vencimento</label>
           <input
             type="date"
-            id="dueDate"
-            [(ngModel)]="dueDate"
-            name="dueDate"
+            id="dataVencimento"
+            [(ngModel)]="dataVencimento"
+            name="dataVencimento"
           />
         </div>
       }
@@ -173,8 +173,8 @@
 </div>
 
 <!-- Modal de Extrato de Despesas -->
-@if (showModal()) {
-  <div class="modal-overlay" (click)="closeModal()">
+@if (mostrarModal()) {
+  <div class="modal-overlay" (click)="fecharModal()">
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="modal-title-section">
@@ -190,7 +190,7 @@
             <p class="modal-subtitle">Gerencie seus gastos</p>
           </div>
         </div>
-        <button class="btn-close" (click)="closeModal()">
+        <button class="btn-close" (click)="fecharModal()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="18" y1="6" x2="6" y2="18"/>
             <line x1="6" y1="6" x2="18" y2="18"/>
@@ -201,54 +201,54 @@
       <div class="modal-summary">
         <div class="summary-item total">
           <span class="summary-label">Total de Despesas</span>
-          <span class="summary-value expense">{{ totalExpenses$() | brlCurrency }}</span>
+          <span class="summary-value expense">{{ totalDespesas$() | brlCurrency }}</span>
         </div>
         <div class="summary-item count">
           <span class="summary-label">Quantidade</span>
-          <span class="summary-value">{{ expenses$().length }} registro(s)</span>
+          <span class="summary-value">{{ despesas$().length }} registro(s)</span>
         </div>
         <div class="summary-filter">
           <span class="summary-label">Filtrar</span>
           <select
             class="modal-filter-select"
-            [value]="selectedCategory$()"
-            (change)="onCategoryChange($any($event.target).value)"
+            [value]="categoriaSelecionada$()"
+            (change)="aoMudarCategoria($any($event.target).value)"
           >
-            @for (category of categories; track category) {
-              <option [value]="category">{{ category }}</option>
+            @for (categoria of categorias; track categoria) {
+              <option [value]="categoria">{{ categoria }}</option>
             }
           </select>
         </div>
       </div>
 
       <div class="modal-body">
-        @if (expenses$().length > 0) {
+        @if (despesas$().length > 0) {
           <div class="extrato-list">
-            @for (expense of expenses$(); track expense.id) {
-              <div class="extrato-item" [class.high-value]="isHighValue(expense.value)">
+            @for (despesa of despesas$(); track despesa.id) {
+              <div class="extrato-item" [class.high-value]="ehAltoValor(despesa.valor)">
                 <div class="extrato-date">
-                  <span class="date-day">{{ expense.date | date:'dd' }}</span>
-                  <span class="date-month">{{ expense.date | date:'MMM' }}</span>
+                  <span class="date-day">{{ despesa.data | date:'dd' }}</span>
+                  <span class="date-month">{{ despesa.data | date:'MMM' }}</span>
                 </div>
-                <div class="extrato-icon" [class.high-value]="isHighValue(expense.value)">
-                  {{ getCategoryEmoji(expense.category) }}
+                <div class="extrato-icon" [class.high-value]="ehAltoValor(despesa.valor)">
+                  {{ obterEmojiCategoria(despesa.categoria) }}
                 </div>
                 <div class="extrato-info">
-                  <span class="extrato-desc">{{ expense.description }}</span>
+                  <span class="extrato-desc">{{ despesa.descricao }}</span>
                   <div class="extrato-meta">
-                    <span class="extrato-category">{{ expense.category }}</span>
-                    <span class="extrato-payment" [class.credit]="expense.paymentType === 'crédito'">
-                      {{ expense.paymentType === 'crédito' ? 'Crédito' : 'À Vista' }}
+                    <span class="extrato-category">{{ despesa.categoria }}</span>
+                    <span class="extrato-payment" [class.credit]="despesa.tipoPagamento === 'crédito'">
+                      {{ despesa.tipoPagamento === 'crédito' ? 'Crédito' : 'À Vista' }}
                     </span>
-                    @if (expense.expenseType === 'fixa') {
+                    @if (despesa.tipoDespesa === 'fixa') {
                       <span class="extrato-type">Fixa</span>
                     }
                   </div>
                 </div>
                 <div class="extrato-value">
-                  <span class="value-amount">- {{ expense.value | brlCurrency }}</span>
+                  <span class="value-amount">- {{ despesa.valor | brlCurrency }}</span>
                 </div>
-                <button class="btn-delete" (click)="removeExpense(expense.id)" title="Remover">
+                <button class="btn-delete" (click)="removerDespesa(despesa.id)" title="Remover">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="3 6 5 6 21 6"/>
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -268,8 +268,8 @@
             </div>
             <p class="empty-title">Nenhuma despesa encontrada</p>
             <p class="empty-desc">
-              @if (selectedCategory$() !== 'Todas') {
-                Não há despesas na categoria "{{ selectedCategory$() }}"
+              @if (categoriaSelecionada$() !== 'Todas') {
+                Não há despesas na categoria "{{ categoriaSelecionada$() }}"
               } @else {
                 Adicione despesas usando o formulário
               }
@@ -278,9 +278,9 @@
         }
       </div>
 
-      @if (allExpenses$().length > 0) {
+      @if (todasDespesas$().length > 0) {
         <div class="modal-footer">
-          <button class="btn-clear-all" (click)="clearAll()">
+          <button class="btn-clear-all" (click)="limparTodas()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="3 6 5 6 21 6"/>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>

@@ -88,30 +88,30 @@ import { CommonModule } from '@angular/common';
                     <button
                       type="button"
                       class="filter-btn"
-                      [class.active]="selectedYear$() === null"
-                      (click)="setYearFilter(null)"
+                      [class.active]="anoSelecionado$() === null"
+                      (click)="definirFiltroAno(null)"
                     >
                       Todos
                     </button>
-                    @for (year of availableYears$(); track year) {
+                    @for (ano of anosDisponiveis$(); track ano) {
                       <button
                         type="button"
                         class="filter-btn"
-                        [class.active]="selectedYear$() === year"
-                        (click)="setYearFilter(year)"
+                        [class.active]="anoSelecionado$() === ano"
+                        (click)="definirFiltroAno(ano)"
                       >
-                        {{ year }}
+                        {{ ano }}
                       </button>
                     }
                   </div>
                   <select
                     class="filter-select"
-                    [value]="selectedMonth$() === null ? 'all' : selectedMonth$()!.toString()"
-                    (change)="onMonthChange($any($event.target).value)"
+                    [value]="mesSelecionado$() === null ? 'all' : mesSelecionado$()!.toString()"
+                    (change)="aoMudarMes($any($event.target).value)"
                   >
                     <option value="all">Todos os meses</option>
-                    @for (month of months; track month.value) {
-                      <option [value]="month.value">{{ month.label }}</option>
+                    @for (mes of meses; track mes.value) {
+                      <option [value]="mes.value">{{ mes.label }}</option>
                     }
                   </select>
                 </div>
@@ -123,7 +123,7 @@ import { CommonModule } from '@angular/common';
             <div class="quick-stats">
               <div class="quick-stat">
                 <span class="quick-stat-label">Total de Gastos</span>
-                <span class="quick-stat-value">{{ totalExpenses$() | brlCurrency }}</span>
+                <span class="quick-stat-value">{{ totalDespesas$() | brlCurrency }}</span>
               </div>
             </div>
           </div>
@@ -677,13 +677,13 @@ import { CommonModule } from '@angular/common';
 })
 export class AppComponent {
   private expenseService = inject(ExpenseService);
-  totalExpenses$ = this.expenseService.totalExpenses$;
-  selectedYear$ = this.expenseService.selectedYear$;
-  selectedMonth$ = this.expenseService.selectedMonth$;
-  availableYears$ = this.expenseService.availableYears$;
+  totalDespesas$ = this.expenseService.totalDespesas$;
+  anoSelecionado$ = this.expenseService.anoSelecionado$;
+  mesSelecionado$ = this.expenseService.mesSelecionado$;
+  anosDisponiveis$ = this.expenseService.anosDisponiveis$;
   title = 'FinControl';
 
-  readonly months = [
+  readonly meses = [
     { value: 0, label: 'Janeiro' },
     { value: 1, label: 'Fevereiro' },
     { value: 2, label: 'Março' },
@@ -698,15 +698,15 @@ export class AppComponent {
     { value: 11, label: 'Dezembro' }
   ];
 
-  setYearFilter(year: number | null): void {
-    this.expenseService.setYearFilter(year);
+  definirFiltroAno(ano: number | null): void {
+    this.expenseService.definirFiltroAno(ano);
   }
 
-  onMonthChange(value: string): void {
-    if (value === 'all') {
-      this.expenseService.setMonthFilter(null);
+  aoMudarMes(valor: string): void {
+    if (valor === 'all') {
+      this.expenseService.definirFiltroMes(null);
     } else {
-      this.expenseService.setMonthFilter(parseInt(value, 10));
+      this.expenseService.definirFiltroMes(parseInt(valor, 10));
     }
   }
 }

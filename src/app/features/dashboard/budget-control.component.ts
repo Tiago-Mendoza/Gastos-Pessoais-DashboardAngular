@@ -23,17 +23,17 @@ import { FormsModule } from '@angular/forms';
       </div>
 
       <div class="budget-list">
-        @for (item of budgetData$(); track item.category) {
+        @for (item of dadosOrcamento$(); track item.categoria) {
           <div class="budget-item" [class.warning]="item.status === 'warning'" [class.exceeded]="item.status === 'exceeded'">
             <div class="budget-item-header">
-              <span class="budget-category">{{ item.category }}</span>
+              <span class="budget-category">{{ item.categoria }}</span>
               <div class="budget-input-wrapper">
                 <span class="currency-symbol">R$</span>
                 <input
                   type="number"
                   class="budget-input"
-                  [value]="item.limit"
-                  (blur)="updateBudget(item.category, $any($event.target).value)"
+                  [value]="item.limite"
+                  (blur)="atualizarOrcamento(item.categoria, $any($event.target).value)"
                   placeholder="0"
                   min="0"
                   step="0.01"
@@ -48,21 +48,21 @@ import { FormsModule } from '@angular/forms';
                   [class.normal]="item.status === 'normal'"
                   [class.warning]="item.status === 'warning'"
                   [class.exceeded]="item.status === 'exceeded'"
-                  [style.width.%]="Math.min(item.percentage, 100)"
+                  [style.width.%]="Math.min(item.percentual, 100)"
                 ></div>
               </div>
-              <span class="progress-text">{{ item.percentage.toFixed(0) }}%</span>
+              <span class="progress-text">{{ item.percentual.toFixed(0) }}%</span>
             </div>
 
             <div class="budget-footer">
               <span class="budget-spent">
                 <span class="label">Gasto:</span>
-                {{ item.spent | brlCurrency }}
+                {{ item.gasto | brlCurrency }}
               </span>
-              @if (item.limit > 0) {
-                <span class="budget-remaining" [class.exceeded]="item.spent > item.limit">
-                  {{ item.spent > item.limit ? 'Excedido:' : 'Restante:' }}
-                  {{ (item.limit - item.spent) | brlCurrency }}
+              @if (item.limite > 0) {
+                <span class="budget-remaining" [class.exceeded]="item.gasto > item.limite">
+                  {{ item.gasto > item.limite ? 'Excedido:' : 'Restante:' }}
+                  {{ (item.limite - item.gasto) | brlCurrency }}
                 </span>
               }
             </div>
@@ -265,14 +265,14 @@ import { FormsModule } from '@angular/forms';
 export class BudgetControlComponent {
   private expenseService = inject(ExpenseService);
   
-  budgetData$ = this.expenseService.budgetData$;
+  dadosOrcamento$ = this.expenseService.dadosOrcamento$;
   Math = Math;
 
-  updateBudget(category: string, value: string): void {
-    const limit = parseFloat(value) || 0;
-    const currentMonth = this.expenseService.selectedMonth$() ?? new Date().getMonth();
-    const currentYear = this.expenseService.selectedYear$() ?? new Date().getFullYear();
+  atualizarOrcamento(categoria: string, valor: string): void {
+    const limite = parseFloat(valor) || 0;
+    const mesAtual = this.expenseService.mesSelecionado$() ?? new Date().getMonth();
+    const anoAtual = this.expenseService.anoSelecionado$() ?? new Date().getFullYear();
     
-    this.expenseService.setBudget(category, limit, currentMonth, currentYear);
+    this.expenseService.definirOrcamento(categoria, limite, mesAtual, anoAtual);
   }
 }

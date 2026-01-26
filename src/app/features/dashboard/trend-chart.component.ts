@@ -16,19 +16,19 @@ Chart.register(...registerables);
           <h3 class="trend-title">Evolução do Patrimônio</h3>
           <p class="trend-subtitle">Saldo acumulado ao longo do tempo</p>
         </div>
-        <div class="trend-indicator" [class.positive]="getCurrentBalance() >= 0" [class.negative]="getCurrentBalance() < 0">
+        <div class="trend-indicator" [class.positive]="obterSaldoAtual() >= 0" [class.negative]="obterSaldoAtual() < 0">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            @if (getCurrentBalance() >= 0) {
+            @if (obterSaldoAtual() >= 0) {
               <polyline points="18 15 12 9 6 15"/>
             } @else {
               <polyline points="6 9 12 15 18 9"/>
             }
           </svg>
-          <span>{{ getCurrentBalance() >= 0 ? 'Positivo' : 'Negativo' }}</span>
+          <span>{{ obterSaldoAtual() >= 0 ? 'Positivo' : 'Negativo' }}</span>
         </div>
       </div>
 
-      @if (hasData()) {
+      @if (temDados()) {
         <div class="trend-wrapper">
           <canvas #trendCanvas></canvas>
         </div>
@@ -152,62 +152,62 @@ Chart.register(...registerables);
 export class TrendChartComponent implements AfterViewInit, OnDestroy {
   private expenseService = inject(ExpenseService);
   
-  trendData$ = this.expenseService.trendData$;
+  dadosTendencia$ = this.expenseService.dadosTendencia$;
   canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('trendCanvas');
-  private chartInstance = signal<Chart | null>(null);
+  private instanciaGrafico = signal<Chart | null>(null);
 
   constructor() {
     effect(() => {
-      const data = this.trendData$();
-      const chart = this.chartInstance();
+      const dados = this.dadosTendencia$();
+      const grafico = this.instanciaGrafico();
       const canvas = this.canvasRef();
       
       setTimeout(() => {
-        if (data.length > 0 && canvas) {
-          if (chart) {
-            this.updateChart();
+        if (dados.length > 0 && canvas) {
+          if (grafico) {
+            this.atualizarGrafico();
           } else {
-            this.createChart();
+            this.criarGrafico();
           }
-        } else if (chart && data.length === 0) {
-          chart.data = { labels: [], datasets: [] };
-          chart.update();
+        } else if (grafico && dados.length === 0) {
+          grafico.data = { labels: [], datasets: [] };
+          grafico.update();
         }
       }, 0);
     });
   }
 
   ngAfterViewInit(): void {
-    if (this.hasData()) {
-      this.createChart();
+    if (this.temDados()) {
+      this.criarGrafico();
     }
   }
 
   ngOnDestroy(): void {
-    const chart = this.chartInstance();
-    if (chart) {
-      chart.destroy();
+    const grafico = this.instanciaGrafico();
+    if (grafico) {
+      grafico.destroy();
     }
   }
 
-  hasData(): boolean {
-    return this.trendData$().length > 0;
+  temDados(): boolean {
+    return this.dadosTendencia$().length > 0;
   }
 
-  getCurrentBalance(): number {
-    const data = this.trendData$();
-    if (data.length === 0) return 0;
-    return data[data.length - 1].balance;
+  obterSaldoAtual(): number {
+    const dados = this.dadosTendencia$();
+    if (dados.length === 0) return 0;
+    return dados[dados.length - 1].saldo;
   }
 
-  private createChart(): void {
+  private criarGrafico(): void {
     const canvas = this.canvasRef()?.nativeElement;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const data = this.getChartJSData();
+    const dados = this.obterDadosChartJS();
     
     // Create gradient
     const gradient = ctx.createLinearGradient(0, 0, 0, 200);
@@ -217,8 +217,8 @@ export class TrendChartComponent implements AfterViewInit, OnDestroy {
     const config: ChartConfiguration<'line'> = {
       type: 'line',
       data: {
-        ...data,
-        datasets: data.datasets.map(dataset => ({
+        ...dados,
+        datasets: dados.datasets.map(dataset => ({
           ...dataset,
           backgroundColor: gradient
         }))
@@ -258,13 +258,13 @@ export class TrendChartComponent implements AfterViewInit, OnDestroy {
             ticks: {
               font: { size: 11 },
               color: '#64748b',
-              callback: (value) => {
+              callback: (valor) => {
                 return new Intl.NumberFormat('pt-BR', {
                   style: 'currency',
                   currency: 'BRL',
                   notation: 'compact',
                   maximumFractionDigits: 0
-                }).format(value as number);
+                }).format(valor as number);
               }
             }
           }
@@ -281,37 +281,37 @@ export class TrendChartComponent implements AfterViewInit, OnDestroy {
       }
     };
 
-    const chart = new Chart(ctx, config);
-    this.chartInstance.set(chart);
+    const grafico = new Chart(ctx, config);
+    this.instanciaGrafico.set(grafico);
   }
 
-  private updateChart(): void {
-    const chart = this.chartInstance();
-    if (!chart) {
-      this.createChart();
+  private atualizarGrafico(): void {
+    const grafico = this.instanciaGrafico();
+    if (!grafico) {
+      this.criarGrafico();
       return;
     }
 
-    const data = this.getChartJSData();
-    chart.data = data;
-    chart.update('active');
+    const dados = this.obterDadosChartJS();
+    grafico.data = dados;
+    grafico.update('active');
   }
 
-  private getChartJSData() {
-    const trendData = this.trendData$();
+  private obterDadosChartJS() {
+    const dadosTendencia = this.dadosTendencia$();
     
-    if (trendData.length === 0) {
+    if (dadosTendencia.length === 0) {
       return { labels: [], datasets: [] };
     }
 
-    const labels = trendData.map(item => item.month);
-    const balanceData = trendData.map(item => item.balance);
+    const rotulos = dadosTendencia.map(item => item.mes);
+    const dadosSaldo = dadosTendencia.map(item => item.saldo);
 
     return {
-      labels: labels,
+      labels: rotulos,
       datasets: [{
         label: 'Saldo Acumulado',
-        data: balanceData,
+        data: dadosSaldo,
         borderColor: '#3b82f6',
         borderWidth: 2,
         fill: true,

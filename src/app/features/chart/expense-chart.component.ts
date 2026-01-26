@@ -19,16 +19,16 @@ Chart.register(...registerables);
         </div>
       </div>
 
-      @if (chartData$().length > 0) {
+      @if (dadosGrafico$().length > 0) {
         <div class="chart-body">
           <div class="chart-wrapper">
             <canvas #chartCanvas></canvas>
           </div>
           <div class="chart-legend">
-            @for (item of chartData$(); track item.category) {
+            @for (item of dadosGrafico$(); track item.categoria) {
               <div class="legend-item">
-                <div class="legend-color" [style.background]="getCategoryColor(item.category)"></div>
-                <span class="legend-label">{{ item.category }}</span>
+                <div class="legend-color" [style.background]="obterCorCategoria(item.categoria)"></div>
+                <span class="legend-label">{{ item.categoria }}</span>
                 <span class="legend-value">{{ item.total | brlCurrency }}</span>
               </div>
             }
@@ -36,7 +36,7 @@ Chart.register(...registerables);
         </div>
         <div class="chart-footer">
           <span class="total-label">Total:</span>
-          <span class="total-value">{{ totalExpenses$() | brlCurrency }}</span>
+          <span class="total-value">{{ totalDespesas$() | brlCurrency }}</span>
         </div>
       } @else {
         <div class="empty-state">
@@ -212,13 +212,13 @@ Chart.register(...registerables);
 export class ExpenseChartComponent implements AfterViewInit, OnDestroy {
   private expenseService = inject(ExpenseService);
   
-  chartData$ = this.expenseService.chartData$;
-  totalExpenses$ = this.expenseService.totalExpenses$;
+  dadosGrafico$ = this.expenseService.dadosGrafico$;
+  totalDespesas$ = this.expenseService.totalDespesas$;
   canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('chartCanvas');
-  private chartInstance = signal<Chart | null>(null);
-  private previousDataLength = 0;
+  private instanciaGrafico = signal<Chart | null>(null);
+  private tamanhoDadosAnterior = 0;
 
-  private readonly categoryColors: { [key: string]: string } = {
+  private readonly coresCategoria: { [key: string]: string } = {
     'Alimentação': '#3b82f6',
     'Transporte': '#10b981',
     'Lazer': '#8b5cf6',
@@ -230,59 +230,59 @@ export class ExpenseChartComponent implements AfterViewInit, OnDestroy {
 
   constructor() {
     effect(() => {
-      const data = this.chartData$();
-      const chart = this.chartInstance();
+      const dados = this.dadosGrafico$();
+      const grafico = this.instanciaGrafico();
       const canvas = this.canvasRef();
       
       setTimeout(() => {
-        if (data.length > 0 && canvas) {
-          if (this.previousDataLength === 0 && chart) {
-            chart.destroy();
-            this.chartInstance.set(null);
-            this.createChart();
-          } else if (chart) {
-            this.updateChart();
+        if (dados.length > 0 && canvas) {
+          if (this.tamanhoDadosAnterior === 0 && grafico) {
+            grafico.destroy();
+            this.instanciaGrafico.set(null);
+            this.criarGrafico();
+          } else if (grafico) {
+            this.atualizarGrafico();
           } else {
-            this.createChart();
+            this.criarGrafico();
           }
-        } else if (chart && data.length === 0) {
-          chart.data = { labels: [], datasets: [] };
-          chart.update();
+        } else if (grafico && dados.length === 0) {
+          grafico.data = { labels: [], datasets: [] };
+          grafico.update();
         }
-        this.previousDataLength = data.length;
+        this.tamanhoDadosAnterior = dados.length;
       }, 0);
     });
   }
 
   ngAfterViewInit(): void {
-    if (this.chartData$().length > 0) {
-      this.createChart();
+    if (this.dadosGrafico$().length > 0) {
+      this.criarGrafico();
     }
   }
 
   ngOnDestroy(): void {
-    const chart = this.chartInstance();
-    if (chart) {
-      chart.destroy();
+    const grafico = this.instanciaGrafico();
+    if (grafico) {
+      grafico.destroy();
     }
   }
 
-  getCategoryColor(category: string): string {
-    return this.categoryColors[category] || this.categoryColors['Outros'];
+  obterCorCategoria(categoria: string): string {
+    return this.coresCategoria[categoria] || this.coresCategoria['Outros'];
   }
 
-  private createChart(): void {
+  private criarGrafico(): void {
     const canvas = this.canvasRef()?.nativeElement;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const data = this.getChartJSData();
+    const dados = this.obterDadosChartJS();
     
     const config: ChartConfiguration<'doughnut'> = {
       type: 'doughnut',
-      data: data,
+      data: dados,
       options: {
         responsive: true,
         maintainAspectRatio: true,
@@ -297,13 +297,13 @@ export class ExpenseChartComponent implements AfterViewInit, OnDestroy {
             cornerRadius: 8,
             callbacks: {
               label: (context) => {
-                const value = context.raw as number;
-                const total = this.totalExpenses$();
-                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+                const valor = context.raw as number;
+                const total = this.totalDespesas$();
+                const percentual = total > 0 ? ((valor / total) * 100).toFixed(1) : '0';
                 return `${new Intl.NumberFormat('pt-BR', {
                   style: 'currency',
                   currency: 'BRL'
-                }).format(value)} (${percentage}%)`;
+                }).format(valor)} (${percentual}%)`;
               }
             }
           }
@@ -311,45 +311,45 @@ export class ExpenseChartComponent implements AfterViewInit, OnDestroy {
       }
     };
 
-    const chart = new Chart(ctx, config);
-    this.chartInstance.set(chart);
+    const grafico = new Chart(ctx, config);
+    this.instanciaGrafico.set(grafico);
   }
 
-  private updateChart(): void {
-    const chart = this.chartInstance();
-    if (!chart) {
-      this.createChart();
+  private atualizarGrafico(): void {
+    const grafico = this.instanciaGrafico();
+    if (!grafico) {
+      this.criarGrafico();
       return;
     }
 
-    const data = this.getChartJSData();
+    const dados = this.obterDadosChartJS();
     
-    if (!data.labels || data.labels.length === 0) {
-      chart.data = { labels: [], datasets: [] };
-      chart.update();
+    if (!dados.labels || dados.labels.length === 0) {
+      grafico.data = { labels: [], datasets: [] };
+      grafico.update();
       return;
     }
 
-    chart.data = data;
-    chart.update('active');
+    grafico.data = dados;
+    grafico.update('active');
   }
 
-  private getChartJSData() {
-    const chartData = this.chartData$();
+  private obterDadosChartJS() {
+    const dadosGrafico = this.dadosGrafico$();
     
-    if (chartData.length === 0) {
+    if (dadosGrafico.length === 0) {
       return { labels: [], datasets: [] };
     }
     
-    const labels = chartData.map(item => item.category);
-    const values = chartData.map(item => item.total);
-    const colors = chartData.map(item => this.getCategoryColor(item.category));
+    const rotulos = dadosGrafico.map(item => item.categoria);
+    const valores = dadosGrafico.map(item => item.total);
+    const cores = dadosGrafico.map(item => this.obterCorCategoria(item.categoria));
 
     return {
-      labels: labels,
+      labels: rotulos,
       datasets: [{
-        data: values,
-        backgroundColor: colors,
+        data: valores,
+        backgroundColor: cores,
         borderWidth: 0,
         hoverOffset: 8
       }]

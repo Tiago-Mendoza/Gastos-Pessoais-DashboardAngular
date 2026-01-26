@@ -8,11 +8,11 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
   standalone: true,
   imports: [CommonModule, CurrencyPipe, DatePipe],
   template: `
-    <div class="balance-card" [class.positive]="balance$() >= 0" [class.negative]="balance$() < 0">
+    <div class="balance-card" [class.positive]="saldo$() >= 0" [class.negative]="saldo$() < 0">
       <div class="balance-header">
-        <div class="balance-icon" [class.positive]="balance$() >= 0" [class.negative]="balance$() < 0">
+        <div class="balance-icon" [class.positive]="saldo$() >= 0" [class.negative]="saldo$() < 0">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            @if (balance$() >= 0) {
+            @if (saldo$() >= 0) {
               <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
               <polyline points="17 6 23 6 23 12"/>
             } @else {
@@ -24,7 +24,7 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
         <span class="balance-title">Saldo Atual</span>
         
         <!-- Botão para abrir modal de extrato -->
-        <button class="btn-extrato" (click)="openModal()" title="Ver extrato">
+        <button class="btn-extrato" (click)="abrirModal()" title="Ver extrato">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
             <polyline points="14 2 14 8 20 8"/>
@@ -35,20 +35,20 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
         </button>
       </div>
       
-      <div class="balance-amount" [class.positive]="balance$() >= 0" [class.negative]="balance$() < 0">
-        {{ balance$() | brlCurrency }}
+      <div class="balance-amount" [class.positive]="saldo$() >= 0" [class.negative]="saldo$() < 0">
+        {{ saldo$() | brlCurrency }}
       </div>
       
       <div class="balance-breakdown">
         <div class="breakdown-item">
           <div class="breakdown-dot income"></div>
           <span class="breakdown-label">Receitas</span>
-          <span class="breakdown-value income">{{ totalIncomes$() | brlCurrency }}</span>
+          <span class="breakdown-value income">{{ totalReceitas$() | brlCurrency }}</span>
         </div>
         <div class="breakdown-item">
           <div class="breakdown-dot expense"></div>
           <span class="breakdown-label">Despesas</span>
-          <span class="breakdown-value expense">{{ totalExpenses$() | brlCurrency }}</span>
+          <span class="breakdown-value expense">{{ totalDespesas$() | brlCurrency }}</span>
         </div>
       </div>
       
@@ -56,20 +56,20 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
         <div class="indicator-bar">
           <div 
             class="indicator-fill" 
-            [class.positive]="balance$() >= 0"
-            [class.negative]="balance$() < 0"
-            [style.width.%]="getIndicatorWidth()"
+            [class.positive]="saldo$() >= 0"
+            [class.negative]="saldo$() < 0"
+            [style.width.%]="obterLarguraIndicador()"
           ></div>
         </div>
         <span class="indicator-label">
-          {{ balance$() >= 0 ? 'Saldo positivo' : 'Saldo negativo' }}
+          {{ saldo$() >= 0 ? 'Saldo positivo' : 'Saldo negativo' }}
         </span>
       </div>
     </div>
 
     <!-- Modal de Extrato -->
-    @if (showModal()) {
-      <div class="modal-overlay" (click)="closeModal()">
+    @if (mostrarModal()) {
+      <div class="modal-overlay" (click)="fecharModal()">
         <div class="modal-content" (click)="$event.stopPropagation()">
           <div class="modal-header">
             <div class="modal-title-section">
@@ -86,7 +86,7 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
                 <p class="modal-subtitle">Gerencie suas entradas</p>
               </div>
             </div>
-            <button class="btn-close" (click)="closeModal()">
+            <button class="btn-close" (click)="fecharModal()">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="18" y1="6" x2="6" y2="18"/>
                 <line x1="6" y1="6" x2="18" y2="18"/>
@@ -97,31 +97,31 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
           <div class="modal-summary">
             <div class="summary-item total">
               <span class="summary-label">Total de Receitas</span>
-              <span class="summary-value">{{ totalIncomes$() | brlCurrency }}</span>
+              <span class="summary-value">{{ totalReceitas$() | brlCurrency }}</span>
             </div>
             <div class="summary-item count">
               <span class="summary-label">Quantidade</span>
-              <span class="summary-value">{{ incomes$().length }} registro(s)</span>
+              <span class="summary-value">{{ receitas$().length }} registro(s)</span>
             </div>
           </div>
 
           <div class="modal-body">
-            @if (incomes$().length > 0) {
+            @if (receitas$().length > 0) {
               <div class="extrato-list">
-                @for (income of incomes$(); track income.id) {
+                @for (receita of receitas$(); track receita.id) {
                   <div class="extrato-item">
                     <div class="extrato-date">
-                      <span class="date-day">{{ income.date | date:'dd' }}</span>
-                      <span class="date-month">{{ income.date | date:'MMM' }}</span>
+                      <span class="date-day">{{ receita.data | date:'dd' }}</span>
+                      <span class="date-month">{{ receita.data | date:'MMM' }}</span>
                     </div>
                     <div class="extrato-info">
-                      <span class="extrato-desc">{{ income.description }}</span>
-                      <span class="extrato-category">{{ income.category || 'Outros' }}</span>
+                      <span class="extrato-desc">{{ receita.descricao }}</span>
+                      <span class="extrato-category">{{ receita.categoria || 'Outros' }}</span>
                     </div>
                     <div class="extrato-value">
-                      <span class="value-amount">+ {{ income.value | brlCurrency }}</span>
+                      <span class="value-amount">+ {{ receita.valor | brlCurrency }}</span>
                     </div>
-                    <button class="btn-delete" (click)="removeIncome(income.id)" title="Remover">
+                    <button class="btn-delete" (click)="removerReceita(receita.id)" title="Remover">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="3 6 5 6 21 6"/>
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -144,9 +144,9 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
             }
           </div>
 
-          @if (incomes$().length > 0) {
+          @if (receitas$().length > 0) {
             <div class="modal-footer">
-              <button class="btn-clear-all" (click)="clearAllIncomes()">
+              <button class="btn-clear-all" (click)="limparTodasReceitas()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="3 6 5 6 21 6"/>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -642,40 +642,40 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 export class BalanceCardComponent {
   private expenseService = inject(ExpenseService);
   
-  balance$ = this.expenseService.balance$;
-  totalIncomes$ = this.expenseService.totalIncomes$;
-  totalExpenses$ = this.expenseService.totalExpenses$;
-  incomes$ = this.expenseService.incomes$;
+  saldo$ = this.expenseService.saldo$;
+  totalReceitas$ = this.expenseService.totalReceitas$;
+  totalDespesas$ = this.expenseService.totalDespesas$;
+  receitas$ = this.expenseService.receitas$;
   
-  showModal = signal(false);
+  mostrarModal = signal(false);
 
-  openModal(): void {
-    this.showModal.set(true);
+  abrirModal(): void {
+    this.mostrarModal.set(true);
   }
 
-  closeModal(): void {
-    this.showModal.set(false);
+  fecharModal(): void {
+    this.mostrarModal.set(false);
   }
 
-  removeIncome(id: string): void {
-    this.expenseService.removeIncome(id);
+  removerReceita(id: string): void {
+    this.expenseService.removerReceita(id);
   }
 
-  clearAllIncomes(): void {
+  limparTodasReceitas(): void {
     if (confirm('Tem certeza que deseja remover todas as receitas?')) {
-      const incomes = this.incomes$();
-      incomes.forEach(income => {
-        this.expenseService.removeIncome(income.id);
+      const receitas = this.receitas$();
+      receitas.forEach(receita => {
+        this.expenseService.removerReceita(receita.id);
       });
-      this.closeModal();
+      this.fecharModal();
     }
   }
 
-  getIndicatorWidth(): number {
-    const income = this.totalIncomes$();
-    const expense = this.totalExpenses$();
-    const total = income + expense;
+  obterLarguraIndicador(): number {
+    const receita = this.totalReceitas$();
+    const despesa = this.totalDespesas$();
+    const total = receita + despesa;
     if (total === 0) return 50;
-    return Math.min(100, Math.max(0, (income / total) * 100));
+    return Math.min(100, Math.max(0, (receita / total) * 100));
   }
 }
