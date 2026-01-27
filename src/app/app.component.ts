@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ExpenseComponent } from './features/expenses/expense.component';
 import { ExpenseChartComponent } from './features/chart/expense-chart.component';
 import { KpiCardsComponent } from './features/dashboard/kpi-cards.component';
@@ -10,7 +10,8 @@ import { UpcomingDueDatesComponent } from './features/dashboard/upcoming-due-dat
 import { IncomeFormComponent } from './features/income/income-form.component';
 import { ExpenseService } from './core/services/expense.service';
 import { CurrencyPipe } from './shared/pipes/currency.pipe';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
+import { CATEGORIAS } from './models/expense.model';
 
 @Component({
   selector: 'app-root',
@@ -26,7 +27,8 @@ import { CommonModule } from '@angular/common';
     TrendChartComponent,
     UpcomingDueDatesComponent,
     IncomeFormComponent,
-    CurrencyPipe
+    CurrencyPipe,
+    DatePipe
   ],
   template: `
     <div class="app-layout">
@@ -56,6 +58,36 @@ import { CommonModule } from '@angular/common';
               </svg>
               Dashboard
             </a>
+            
+            <button class="nav-item-extrato" (click)="abrirModalReceitas()">
+              <div class="extrato-icon-wrapper">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+              </div>
+              <div class="extrato-text">
+                <span class="extrato-title">Extrato de Receitas</span>
+                <span class="extrato-subtitle">Gerencie suas entradas</span>
+              </div>
+            </button>
+            
+            <button class="nav-item-extrato" (click)="abrirModalDespesas()">
+              <div class="extrato-icon-wrapper">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+              </div>
+              <div class="extrato-text">
+                <span class="extrato-title">Extrato de Despesas</span>
+                <span class="extrato-subtitle">Visualize seus gastos</span>
+              </div>
+            </button>
           </div>
         </nav>
 
@@ -168,6 +200,220 @@ import { CommonModule } from '@angular/common';
         </div>
       </main>
     </div>
+
+    <!-- Modal de Extrato de Receitas -->
+    @if (mostrarModalReceitas()) {
+      <div class="modal-overlay" (click)="fecharModalReceitas()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <div class="modal-title-section">
+              <div class="modal-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+              </div>
+              <div>
+                <h2 class="modal-title">Extrato de Receitas</h2>
+                <p class="modal-subtitle">Gerencie suas entradas</p>
+              </div>
+            </div>
+            <button class="btn-close" (click)="fecharModalReceitas()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="modal-summary">
+            <div class="summary-item total">
+              <span class="summary-label">Total de Receitas</span>
+              <span class="summary-value">{{ totalReceitas$() | brlCurrency }}</span>
+            </div>
+            <div class="summary-item count">
+              <span class="summary-label">Quantidade</span>
+              <span class="summary-value">{{ receitas$().length }} registro(s)</span>
+            </div>
+          </div>
+
+          <div class="modal-body">
+            @if (receitas$().length > 0) {
+              <div class="extrato-list">
+                @for (receita of receitas$(); track receita.id) {
+                  <div class="extrato-item">
+                    <div class="extrato-date">
+                      <span class="date-day">{{ receita.data | date:'dd' }}</span>
+                      <span class="date-month">{{ receita.data | date:'MMM' }}</span>
+                    </div>
+                    <div class="extrato-info">
+                      <span class="extrato-desc">{{ receita.descricao }}</span>
+                      <span class="extrato-category">{{ receita.categoria || 'Outros' }}</span>
+                    </div>
+                    <div class="extrato-value">
+                      <span class="value-amount">+ {{ receita.valor | brlCurrency }}</span>
+                    </div>
+                    <button class="btn-delete" (click)="removerReceita(receita.id)" title="Remover">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                      </svg>
+                    </button>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="empty-state">
+                <div class="empty-icon">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                </div>
+                <p class="empty-title">Nenhuma receita cadastrada</p>
+                <p class="empty-desc">Adicione receitas usando o formulário "Nova Receita"</p>
+              </div>
+            }
+          </div>
+
+          @if (receitas$().length > 0) {
+            <div class="modal-footer">
+              <button class="btn-clear-all" (click)="limparTodasReceitas()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+                Limpar todas as receitas
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Modal de Extrato de Despesas -->
+    @if (mostrarModalDespesas()) {
+      <div class="modal-overlay" (click)="fecharModalDespesas()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <div class="modal-title-section">
+              <div class="modal-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+              </div>
+              <div>
+                <h2 class="modal-title">Extrato de Despesas</h2>
+                <p class="modal-subtitle">Gerencie seus gastos</p>
+              </div>
+            </div>
+            <button class="btn-close" (click)="fecharModalDespesas()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="modal-summary">
+            <div class="summary-item total">
+              <span class="summary-label">Total de Despesas</span>
+              <span class="summary-value expense">{{ totalDespesas$() | brlCurrency }}</span>
+            </div>
+            <div class="summary-item count">
+              <span class="summary-label">Quantidade</span>
+              <span class="summary-value">{{ todasDespesas$().length }} registro(s)</span>
+            </div>
+            <div class="summary-filter">
+              <span class="summary-label">Filtrar</span>
+              <select
+                class="modal-filter-select"
+                [value]="categoriaSelecionada$()"
+                (change)="aoMudarCategoria($any($event.target).value)"
+              >
+                @for (categoria of categorias; track categoria) {
+                  <option [value]="categoria">{{ categoria }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="modal-body">
+            @if (despesasFiltradas$().length > 0) {
+              <div class="extrato-list">
+                @for (despesa of despesasFiltradas$(); track despesa.id) {
+                  <div class="extrato-item" [class.high-value]="ehAltoValor(despesa.valor)">
+                    <div class="extrato-date">
+                      <span class="date-day">{{ despesa.data | date:'dd' }}</span>
+                      <span class="date-month">{{ despesa.data | date:'MMM' }}</span>
+                    </div>
+                    <div class="extrato-icon" [class.high-value]="ehAltoValor(despesa.valor)">
+                      {{ obterEmojiCategoria(despesa.categoria) }}
+                    </div>
+                    <div class="extrato-info">
+                      <span class="extrato-desc">{{ despesa.descricao }}</span>
+                      <div class="extrato-meta">
+                        <span class="extrato-category">{{ despesa.categoria }}</span>
+                        <span class="extrato-payment" [class.credit]="despesa.tipoPagamento === 'crédito'">
+                          {{ despesa.tipoPagamento === 'crédito' ? 'Crédito' : 'À Vista' }}
+                        </span>
+                        @if (despesa.tipoDespesa === 'fixa') {
+                          <span class="extrato-type">Fixa</span>
+                        }
+                      </div>
+                    </div>
+                    <div class="extrato-value">
+                      <span class="value-amount">- {{ despesa.valor | brlCurrency }}</span>
+                    </div>
+                    <button class="btn-delete" (click)="removerDespesa(despesa.id)" title="Remover">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                      </svg>
+                    </button>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="empty-state">
+                <div class="empty-icon">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                  </svg>
+                </div>
+                <p class="empty-title">Nenhuma despesa encontrada</p>
+                <p class="empty-desc">
+                  @if (categoriaSelecionada$() !== 'Todas') {
+                    Não há despesas na categoria "{{ categoriaSelecionada$() }}"
+                  } @else {
+                    Adicione despesas usando o formulário
+                  }
+                </p>
+              </div>
+            }
+          </div>
+
+          @if (todasDespesas$().length > 0) {
+            <div class="modal-footer">
+              <button class="btn-clear-all" (click)="limparTodasDespesas()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+                Limpar todas as despesas
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
   `,
   styles: [`
     /* App Layout */
@@ -241,7 +487,7 @@ import { CommonModule } from '@angular/common';
     .nav-section-title {
       font-size: var(--font-size-xs);
       font-weight: 600;
-      color: var(--gray-500);
+      color: var(--gray-300);
       text-transform: uppercase;
       letter-spacing: 0.05em;
       padding: 0 var(--spacing-3);
@@ -276,6 +522,452 @@ import { CommonModule } from '@angular/common';
 
     .nav-item svg {
       flex-shrink: 0;
+    }
+
+    /* Botões de Extrato na Sidebar */
+    .nav-item-extrato {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+      padding: var(--spacing-3);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      width: 100%;
+      text-align: left;
+      margin-top: var(--spacing-2);
+    }
+
+    .nav-item-extrato:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateX(2px);
+    }
+
+    .extrato-icon-wrapper {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .extrato-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+    }
+
+    .extrato-title {
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: white;
+      line-height: 1.2;
+    }
+
+    .extrato-subtitle {
+      font-size: var(--font-size-xs);
+      color: var(--gray-300);
+      line-height: 1.2;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: var(--spacing-4);
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: var(--radius-xl);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      width: 100%;
+      max-width: 600px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { 
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to { 
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-4);
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .modal-title-section {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+    }
+
+    .modal-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--success-50), var(--success-100));
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--success-600);
+    }
+
+    .modal-title {
+      font-size: var(--font-size-lg);
+      font-weight: 700;
+      color: var(--gray-900);
+      margin: 0;
+    }
+
+    .modal-subtitle {
+      font-size: var(--font-size-sm);
+      color: var(--gray-500);
+      margin: 0;
+    }
+
+    .btn-close {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: var(--gray-100);
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--gray-500);
+      transition: all var(--transition-fast);
+    }
+
+    .btn-close:hover {
+      background: var(--gray-200);
+      color: var(--gray-700);
+    }
+
+    .modal-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: var(--spacing-3);
+      padding: var(--spacing-4);
+      background: var(--gray-50);
+    }
+
+    .summary-item {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-1);
+    }
+
+    .summary-label {
+      font-size: var(--font-size-xs);
+      font-weight: 500;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .summary-value {
+      font-size: var(--font-size-lg);
+      font-weight: 700;
+      color: var(--gray-900);
+    }
+
+    .summary-item.total .summary-value {
+      color: var(--success-600);
+    }
+
+    .summary-item.total .summary-value.expense {
+      color: var(--danger-600);
+    }
+
+    .summary-filter {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-1);
+      align-items: flex-end;
+    }
+
+    .modal-filter-select {
+      padding: var(--spacing-2) var(--spacing-3);
+      padding-right: var(--spacing-8);
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+      color: var(--gray-700);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      min-width: 120px;
+    }
+
+    .modal-filter-select:hover {
+      border-color: var(--gray-300);
+    }
+
+    .modal-filter-select:focus {
+      outline: none;
+      border-color: var(--primary-500);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--spacing-4);
+    }
+
+    .extrato-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-2);
+    }
+
+    .extrato-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+      padding: var(--spacing-3);
+      background: var(--gray-50);
+      border-radius: var(--radius-lg);
+      transition: all var(--transition-fast);
+    }
+
+    .extrato-item:hover {
+      background: var(--gray-100);
+    }
+
+    .extrato-item.high-value {
+      background: var(--danger-50);
+      border: 1px solid var(--danger-200);
+    }
+
+    .extrato-date {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 44px;
+      padding: var(--spacing-2);
+      background: white;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--gray-200);
+    }
+
+    .date-day {
+      font-size: var(--font-size-lg);
+      font-weight: 700;
+      color: var(--gray-900);
+      line-height: 1;
+    }
+
+    .date-month {
+      font-size: var(--font-size-xs);
+      font-weight: 500;
+      color: var(--gray-500);
+      text-transform: uppercase;
+    }
+
+    .extrato-icon {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--font-size-base);
+      background: white;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--gray-200);
+    }
+
+    .extrato-icon.high-value {
+      background: var(--danger-100);
+      border-color: var(--danger-300);
+    }
+
+    .extrato-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .extrato-desc {
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--gray-800);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .extrato-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      flex-wrap: wrap;
+    }
+
+    .extrato-category {
+      font-size: var(--font-size-xs);
+      padding: 2px 8px;
+      background: var(--primary-100);
+      color: var(--primary-700);
+      border-radius: var(--radius-sm);
+      font-weight: 500;
+    }
+
+    .extrato-payment {
+      font-size: var(--font-size-xs);
+      padding: 2px 8px;
+      background: var(--success-100);
+      color: var(--success-700);
+      border-radius: var(--radius-sm);
+      font-weight: 500;
+    }
+
+    .extrato-payment.credit {
+      background: var(--warning-100);
+      color: var(--warning-700);
+    }
+
+    .extrato-type {
+      font-size: var(--font-size-xs);
+      padding: 2px 8px;
+      background: var(--gray-200);
+      color: var(--gray-700);
+      border-radius: var(--radius-sm);
+      font-weight: 500;
+    }
+
+    .extrato-value {
+      text-align: right;
+    }
+
+    .value-amount {
+      font-size: var(--font-size-base);
+      font-weight: 700;
+      color: var(--danger-600);
+    }
+
+    .btn-delete {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--gray-400);
+      transition: all var(--transition-fast);
+    }
+
+    .btn-delete:hover {
+      background: var(--danger-100);
+      color: var(--danger-600);
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-8);
+      text-align: center;
+    }
+
+    .empty-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--gray-100);
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-400);
+      margin-bottom: var(--spacing-4);
+    }
+
+    .empty-title {
+      font-size: var(--font-size-base);
+      font-weight: 600;
+      color: var(--gray-700);
+      margin: 0 0 var(--spacing-1) 0;
+    }
+
+    .empty-desc {
+      font-size: var(--font-size-sm);
+      color: var(--gray-500);
+      margin: 0;
+    }
+
+    .modal-footer {
+      padding: var(--spacing-4);
+      border-top: 1px solid var(--gray-100);
+      display: flex;
+      justify-content: center;
+    }
+
+    .btn-clear-all {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-2) var(--spacing-4);
+      border: 1px solid var(--danger-200);
+      background: var(--danger-50);
+      color: var(--danger-600);
+      border-radius: var(--radius-lg);
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .btn-clear-all:hover {
+      background: var(--danger-100);
+      border-color: var(--danger-300);
     }
 
     .sidebar-footer {
@@ -681,7 +1373,27 @@ export class AppComponent {
   anoSelecionado$ = this.expenseService.anoSelecionado$;
   mesSelecionado$ = this.expenseService.mesSelecionado$;
   anosDisponiveis$ = this.expenseService.anosDisponiveis$;
+  receitas$ = this.expenseService.receitas$;
+  totalReceitas$ = this.expenseService.totalReceitas$;
+  todasDespesas$ = this.expenseService.expenses$;
+  despesasFiltradas$ = this.expenseService.despesasFiltradas$;
+  categoriaSelecionada$ = this.expenseService.categoriaSelecionada$;
   title = 'FinControl';
+
+  mostrarModalReceitas = signal(false);
+  mostrarModalDespesas = signal(false);
+
+  categorias = ['Todas', ...CATEGORIAS];
+
+  private readonly emojisCategoria: { [key: string]: string } = {
+    'Alimentação': '🍔',
+    'Transporte': '🚗',
+    'Lazer': '🎮',
+    'Saúde': '💊',
+    'Educação': '📚',
+    'Moradia': '🏠',
+    'Outros': '📦'
+  };
 
   readonly meses = [
     { value: 0, label: 'Janeiro' },
@@ -708,5 +1420,58 @@ export class AppComponent {
     } else {
       this.expenseService.definirFiltroMes(parseInt(valor, 10));
     }
+  }
+
+  abrirModalReceitas(): void {
+    this.mostrarModalReceitas.set(true);
+  }
+
+  fecharModalReceitas(): void {
+    this.mostrarModalReceitas.set(false);
+  }
+
+  abrirModalDespesas(): void {
+    this.mostrarModalDespesas.set(true);
+  }
+
+  fecharModalDespesas(): void {
+    this.mostrarModalDespesas.set(false);
+  }
+
+  removerReceita(id: string): void {
+    this.expenseService.removerReceita(id);
+  }
+
+  limparTodasReceitas(): void {
+    if (confirm('Tem certeza que deseja remover todas as receitas?')) {
+      const receitas = this.receitas$();
+      receitas.forEach(receita => {
+        this.expenseService.removerReceita(receita.id);
+      });
+      this.fecharModalReceitas();
+    }
+  }
+
+  removerDespesa(id: string): void {
+    this.expenseService.removerDespesa(id);
+  }
+
+  limparTodasDespesas(): void {
+    if (confirm('Tem certeza que deseja remover todas as despesas?')) {
+      this.expenseService.limparTodasDespesas();
+      this.fecharModalDespesas();
+    }
+  }
+
+  aoMudarCategoria(categoria: string): void {
+    this.expenseService.definirFiltroCategoria(categoria);
+  }
+
+  obterEmojiCategoria(categoria: string): string {
+    return this.emojisCategoria[categoria] || '📦';
+  }
+
+  ehAltoValor(valor: number): boolean {
+    return valor >= 500;
   }
 }

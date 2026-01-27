@@ -3,7 +3,7 @@
     {
       "id": "1",
       "descricao": "Almoço no restaurante",
-      "valor": 45.50,
+      "valor": 45.5,
       "categoria": "Alimentação",
       "data": "2026-01-15T00:00:00.000Z",
       "tipoPagamento": "débito",
@@ -12,7 +12,7 @@
     {
       "id": "2",
       "descricao": "Uber para o trabalho",
-      "valor": 25.00,
+      "valor": 25,
       "categoria": "Transporte",
       "data": "2026-01-16T00:00:00.000Z",
       "tipoPagamento": "débito",
@@ -21,26 +21,35 @@
     {
       "id": "3",
       "descricao": "Netflix",
-      "valor": 32.90,
+      "valor": 32.9,
       "categoria": "Lazer",
       "data": "2026-01-10T00:00:00.000Z",
       "tipoPagamento": "crédito",
       "tipoDespesa": "fixa",
       "dataVencimento": "2026-02-10T00:00:00.000Z"
+    },
+    {
+      "id": "mkvukz4ucflfuk0en8n",
+      "descricao": "derrubou um copo",
+      "valor": 150,
+      "categoria": "Alimentação",
+      "data": "2026-01-01T03:00:00.000Z",
+      "tipoPagamento": "débito",
+      "tipoDespesa": "variável"
     }
   ],
   "receitas": [
     {
       "id": "1",
       "descricao": "Salário mensal",
-      "valor": 5000.00,
+      "valor": 5000,
       "categoria": "Outros",
       "data": "2026-01-05T00:00:00.000Z"
     },
     {
       "id": "2",
       "descricao": "Freelance",
-      "valor": 1500.00,
+      "valor": 1500,
       "categoria": "Outros",
       "data": "2026-01-20T00:00:00.000Z"
     }
@@ -48,21 +57,24 @@
   "orcamentos": [
     {
       "categoria": "Alimentação",
-      "limiteMensal": 800.00,
+      "limiteMensal": 800,
       "mes": 0,
-      "ano": 2026
+      "ano": 2026,
+      "id": "df44"
     },
     {
       "categoria": "Transporte",
-      "limiteMensal": 300.00,
+      "limiteMensal": 300,
       "mes": 0,
-      "ano": 2026
+      "ano": 2026,
+      "id": "802c"
     },
     {
       "categoria": "Lazer",
-      "limiteMensal": 200.00,
+      "limiteMensal": 200,
       "mes": 0,
-      "ano": 2026
+      "ano": 2026,
+      "id": "7235"
     }
   ]
 }
