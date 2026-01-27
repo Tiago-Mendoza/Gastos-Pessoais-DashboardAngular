@@ -14,6 +14,7 @@ import { Expense, CATEGORIAS, DadosGrafico, Income, Budget } from '../../models/
 export class ExpenseService {
   private http = inject(HttpClient);
   private readonly API_URL = 'http://localhost:3000';
+  private usarBackend = true; // Flag para controlar se usa backend ou localStorage
   // Signal que armazena a lista de despesas
   // Usando signal() criamos um estado reativo que pode ser lido e modificado
   private readonly _expenses = signal<Expense[]>([]);
@@ -227,63 +228,112 @@ export class ExpenseService {
     dataVencimento?: Date,
     data?: Date
   ): void {
-    const novaDespesa = {
+    const novaDespesaObj: Expense = {
       id: this.gerarId(),
       descricao,
       valor,
       categoria,
-      data: (data || new Date()).toISOString(),
+      data: data || new Date(),
+      tipoPagamento,
+      tipoDespesa: tipoDespesa || 'variável',
+      dataVencimento
+    };
+
+    const novaDespesa = {
+      id: novaDespesaObj.id,
+      descricao,
+      valor,
+      categoria,
+      data: novaDespesaObj.data.toISOString(),
       tipoPagamento,
       tipoDespesa: tipoDespesa || 'variável',
       dataVencimento: dataVencimento ? dataVencimento.toISOString() : undefined
     };
 
-    this.http.post(`${this.API_URL}/despesas`, novaDespesa).subscribe({
-      next: (despesaCriada: any) => {
-        const despesaParseada: Expense = this.parsearDespesa(despesaCriada);
-        this._expenses.update((despesas: Expense[]) => [...despesas, despesaParseada]);
-      },
-      error: (error) => {
-        console.error('Erro ao adicionar despesa:', error);
-      }
-    });
+    if (this.usarBackend) {
+      this.http.post(`${this.API_URL}/despesas`, novaDespesa).subscribe({
+        next: (despesaCriada: any) => {
+          const despesaParseada: Expense = this.parsearDespesa(despesaCriada);
+          this._expenses.update((despesas: Expense[]) => [...despesas, despesaParseada]);
+        },
+        error: (error) => {
+          console.warn('Erro ao adicionar despesa no backend, usando localStorage:', error);
+          this.usarBackend = false;
+          // Fallback para localStorage
+          this._expenses.update((despesas: Expense[]) => [...despesas, novaDespesaObj]);
+          this.salvarNoLocalStorage();
+        }
+      });
+    } else {
+      // Usa localStorage diretamente
+      this._expenses.update((despesas: Expense[]) => [...despesas, novaDespesaObj]);
+      this.salvarNoLocalStorage();
+    }
   }
 
   /**
    * Adiciona uma nova receita
    */
   adicionarReceita(descricao: string, valor: number, categoria?: string): void {
-    const novaReceita = {
+    const novaReceitaObj: Income = {
       id: this.gerarId(),
       descricao,
       valor,
-      data: new Date().toISOString(),
+      data: new Date(),
       categoria: categoria || 'Outros'
     };
 
-    this.http.post(`${this.API_URL}/receitas`, novaReceita).subscribe({
-      next: (receitaCriada: any) => {
-        const receitaParseada: Income = this.parsearReceita(receitaCriada);
-        this._receitas.update((receitas: Income[]) => [...receitas, receitaParseada]);
-      },
-      error: (error) => {
-        console.error('Erro ao adicionar receita:', error);
-      }
-    });
+    const novaReceita = {
+      id: novaReceitaObj.id,
+      descricao,
+      valor,
+      data: novaReceitaObj.data.toISOString(),
+      categoria: categoria || 'Outros'
+    };
+
+    if (this.usarBackend) {
+      this.http.post(`${this.API_URL}/receitas`, novaReceita).subscribe({
+        next: (receitaCriada: any) => {
+          const receitaParseada: Income = this.parsearReceita(receitaCriada);
+          this._receitas.update((receitas: Income[]) => [...receitas, receitaParseada]);
+        },
+        error: (error) => {
+          console.warn('Erro ao adicionar receita no backend, usando localStorage:', error);
+          this.usarBackend = false;
+          // Fallback para localStorage
+          this._receitas.update((receitas: Income[]) => [...receitas, novaReceitaObj]);
+          this.salvarReceitasEOrcamentos();
+        }
+      });
+    } else {
+      // Usa localStorage diretamente
+      this._receitas.update((receitas: Income[]) => [...receitas, novaReceitaObj]);
+      this.salvarReceitasEOrcamentos();
+    }
   }
 
   /**
    * Remove uma receita
    */
   removerReceita(id: string): void {
-    this.http.delete(`${this.API_URL}/receitas/${id}`).subscribe({
-      next: () => {
-        this._receitas.update((receitas: Income[]) => receitas.filter((receita: Income) => receita.id !== id));
-      },
-      error: (error) => {
-        console.error('Erro ao remover receita:', error);
-      }
-    });
+    if (this.usarBackend) {
+      this.http.delete(`${this.API_URL}/receitas/${id}`).subscribe({
+        next: () => {
+          this._receitas.update((receitas: Income[]) => receitas.filter((receita: Income) => receita.id !== id));
+        },
+        error: (error) => {
+          console.warn('Erro ao remover receita no backend, usando localStorage:', error);
+          this.usarBackend = false;
+          // Fallback para localStorage
+          this._receitas.update((receitas: Income[]) => receitas.filter((receita: Income) => receita.id !== id));
+          this.salvarReceitasEOrcamentos();
+        }
+      });
+    } else {
+      // Usa localStorage diretamente
+      this._receitas.update((receitas: Income[]) => receitas.filter((receita: Income) => receita.id !== id));
+      this.salvarReceitasEOrcamentos();
+    }
   }
 
   /**
@@ -295,9 +345,9 @@ export class ExpenseService {
       (orcamento: Budget) => orcamento.categoria === categoria && orcamento.mes === mes && orcamento.ano === ano
     );
 
-    const novoOrcamento = { categoria, limiteMensal, mes, ano };
+    const novoOrcamento: Budget = { categoria, limiteMensal, mes, ano };
 
-    if (orcamentoExistente) {
+    if (this.usarBackend && orcamentoExistente) {
       // Busca o ID do orçamento existente (json-server adiciona _id ou id)
       const id = (orcamentoExistente as any).id || (orcamentoExistente as any)._id;
       if (id) {
@@ -315,19 +365,55 @@ export class ExpenseService {
             });
           },
           error: (error) => {
-            console.error('Erro ao atualizar orçamento:', error);
+            console.warn('Erro ao atualizar orçamento no backend, usando localStorage:', error);
+            this.usarBackend = false;
+            // Fallback para localStorage
+            this._orcamentos.update((orcamentos: Budget[]) => {
+              const atualizados = [...orcamentos];
+              const indice = atualizados.findIndex(o => 
+                o.categoria === categoria && o.mes === mes && o.ano === ano
+              );
+              if (indice >= 0) {
+                atualizados[indice] = { ...novoOrcamento };
+              } else {
+                atualizados.push(novoOrcamento);
+              }
+              return atualizados;
+            });
+            this.salvarReceitasEOrcamentos();
           }
         });
+        return;
       }
-    } else {
+    }
+
+    if (this.usarBackend && !orcamentoExistente) {
       this.http.post(`${this.API_URL}/orcamentos`, novoOrcamento).subscribe({
         next: (orcamentoCriado: any) => {
           this._orcamentos.update((orcamentos: Budget[]) => [...orcamentos, novoOrcamento]);
         },
         error: (error) => {
-          console.error('Erro ao criar orçamento:', error);
+          console.warn('Erro ao criar orçamento no backend, usando localStorage:', error);
+          this.usarBackend = false;
+          // Fallback para localStorage
+          this._orcamentos.update((orcamentos: Budget[]) => [...orcamentos, novoOrcamento]);
+          this.salvarReceitasEOrcamentos();
         }
       });
+    } else {
+      // Usa localStorage diretamente
+      this._orcamentos.update((orcamentos: Budget[]) => {
+        const indice = orcamentos.findIndex(o => 
+          o.categoria === categoria && o.mes === mes && o.ano === ano
+        );
+        if (indice >= 0) {
+          const atualizados = [...orcamentos];
+          atualizados[indice] = novoOrcamento;
+          return atualizados;
+        }
+        return [...orcamentos, novoOrcamento];
+      });
+      this.salvarReceitasEOrcamentos();
     }
   }
 
@@ -335,31 +421,51 @@ export class ExpenseService {
    * Remove uma despesa pelo ID
    */
   removerDespesa(id: string): void {
-    this.http.delete(`${this.API_URL}/despesas/${id}`).subscribe({
-      next: () => {
-        this._expenses.update((despesas: Expense[]) => despesas.filter((despesa: Expense) => despesa.id !== id));
-      },
-      error: (error) => {
-        console.error('Erro ao remover despesa:', error);
-      }
-    });
+    if (this.usarBackend) {
+      this.http.delete(`${this.API_URL}/despesas/${id}`).subscribe({
+        next: () => {
+          this._expenses.update((despesas: Expense[]) => despesas.filter((despesa: Expense) => despesa.id !== id));
+        },
+        error: (error) => {
+          console.warn('Erro ao remover despesa no backend, usando localStorage:', error);
+          this.usarBackend = false;
+          // Fallback para localStorage
+          this._expenses.update((despesas: Expense[]) => despesas.filter((despesa: Expense) => despesa.id !== id));
+          this.salvarNoLocalStorage();
+        }
+      });
+    } else {
+      // Usa localStorage diretamente
+      this._expenses.update((despesas: Expense[]) => despesas.filter((despesa: Expense) => despesa.id !== id));
+      this.salvarNoLocalStorage();
+    }
   }
 
   /**
    * Remove todas as despesas
    */
   limparTodasDespesas(): void {
-    this.http.get<Expense[]>(`${this.API_URL}/despesas`).subscribe({
-      next: (despesas) => {
-        despesas.forEach(despesa => {
-          this.http.delete(`${this.API_URL}/despesas/${despesa.id}`).subscribe();
-        });
-        this._expenses.set([]);
-      },
-      error: (error) => {
-        console.error('Erro ao limpar despesas:', error);
-      }
-    });
+    if (this.usarBackend) {
+      this.http.get<Expense[]>(`${this.API_URL}/despesas`).subscribe({
+        next: (despesas) => {
+          despesas.forEach(despesa => {
+            this.http.delete(`${this.API_URL}/despesas/${despesa.id}`).subscribe();
+          });
+          this._expenses.set([]);
+        },
+        error: (error) => {
+          console.warn('Erro ao limpar despesas no backend, usando localStorage:', error);
+          this.usarBackend = false;
+          // Fallback para localStorage
+          this._expenses.set([]);
+          this.salvarNoLocalStorage();
+        }
+      });
+    } else {
+      // Usa localStorage diretamente
+      this._expenses.set([]);
+      this.salvarNoLocalStorage();
+    }
   }
 
   /**
@@ -413,9 +519,11 @@ export class ExpenseService {
       next: (despesas) => {
         const despesasParseadas: Expense[] = despesas.map(despesa => this.parsearDespesa(despesa));
         this._expenses.set(despesasParseadas);
+        this.usarBackend = true;
       },
       error: (error) => {
-        console.error('Erro ao carregar despesas do backend:', error);
+        console.warn('Backend não disponível, usando localStorage:', error);
+        this.usarBackend = false;
         // Fallback para localStorage se o backend não estiver disponível
         this.carregarDoLocalStorage();
       }
@@ -428,7 +536,8 @@ export class ExpenseService {
         this._receitas.set(receitasParseadas);
       },
       error: (error) => {
-        console.error('Erro ao carregar receitas do backend:', error);
+        console.warn('Erro ao carregar receitas do backend, usando localStorage:', error);
+        // Já carregado no carregarDoLocalStorage
       }
     });
 
@@ -438,7 +547,8 @@ export class ExpenseService {
         this._orcamentos.set(orcamentos);
       },
       error: (error) => {
-        console.error('Erro ao carregar orçamentos do backend:', error);
+        console.warn('Erro ao carregar orçamentos do backend, usando localStorage:', error);
+        // Já carregado no carregarDoLocalStorage
       }
     });
   }
@@ -470,6 +580,43 @@ export class ExpenseService {
       data: new Date(receita.data),
       categoria: receita.categoria || 'Outros'
     };
+  }
+
+  /**
+   * Salva as despesas no localStorage
+   */
+  private salvarNoLocalStorage(): void {
+    try {
+      const despesas = this._expenses();
+      // Converte Date para string para serialização
+      const serializado = despesas.map(despesa => ({
+        ...despesa,
+        data: despesa.data.toISOString(),
+        dataVencimento: despesa.dataVencimento ? despesa.dataVencimento.toISOString() : undefined
+      }));
+      localStorage.setItem('expenses', JSON.stringify(serializado));
+    } catch (error) {
+      console.error('Erro ao salvar no localStorage:', error);
+    }
+  }
+
+  /**
+   * Salva receitas e orçamentos no localStorage
+   */
+  private salvarReceitasEOrcamentos(): void {
+    try {
+      const receitas = this._receitas();
+      const receitasSerializadas = receitas.map(receita => ({
+        ...receita,
+        data: receita.data.toISOString()
+      }));
+      localStorage.setItem('incomes', JSON.stringify(receitasSerializadas));
+
+      const orcamentos = this._orcamentos();
+      localStorage.setItem('budgets', JSON.stringify(orcamentos));
+    } catch (error) {
+      console.error('Erro ao salvar receitas/orçamentos:', error);
+    }
   }
 
   /**

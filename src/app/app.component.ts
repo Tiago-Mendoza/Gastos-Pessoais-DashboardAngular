@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { ExpenseComponent } from './features/expenses/expense.component';
 import { ExpenseChartComponent } from './features/chart/expense-chart.component';
 import { KpiCardsComponent } from './features/dashboard/kpi-cards.component';
@@ -33,7 +33,7 @@ import { CATEGORIAS } from './models/expense.model';
   template: `
     <div class="app-layout">
       <!-- Sidebar -->
-      <aside class="sidebar">
+      <aside class="sidebar" [class.sidebar-open]="sidebarAberta()" [class.sidebar-closed]="!sidebarAberta()" [class.sidebar-collapsed]="sidebarColapsada()">
         <div class="sidebar-header">
           <div class="logo">
             <div class="logo-icon">
@@ -41,25 +41,40 @@ import { CATEGORIAS } from './models/expense.model';
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.42z" fill="currentColor"/>
               </svg>
             </div>
-            <div class="logo-text">
+            <div class="logo-text" [class.hidden]="sidebarColapsada()">
               <span class="logo-title">FinControl</span>
               <span class="logo-subtitle">Gestão Financeira</span>
             </div>
           </div>
+          <button class="sidebar-toggle-btn" (click)="toggleSidebarColapsada()" aria-label="Toggle sidebar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              @if (sidebarColapsada()) {
+                <polyline points="9 18 15 12 9 6"/>
+              } @else {
+                <polyline points="15 18 9 12 15 6"/>
+              }
+            </svg>
+          </button>
+          <button class="sidebar-close-btn" (click)="toggleSidebar()" aria-label="Fechar menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
         </div>
         
         <nav class="sidebar-nav">
           <div class="nav-section">
-            <span class="nav-section-title">Menu Principal</span>
-            <a class="nav-item active">
+            <span class="nav-section-title" [class.hidden]="sidebarColapsada()">Menu Principal</span>
+            <a class="nav-item active" [title]="sidebarColapsada() ? 'Dashboard' : ''">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
                 <polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
-              Dashboard
+              <span [class.hidden]="sidebarColapsada()">Dashboard</span>
             </a>
             
-            <button class="nav-item-extrato" (click)="abrirModalReceitas()">
+            <button class="nav-item-extrato" (click)="abrirModalReceitas()" [title]="sidebarColapsada() ? 'Extrato de Receitas' : ''">
               <div class="extrato-icon-wrapper">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -68,13 +83,13 @@ import { CATEGORIAS } from './models/expense.model';
                   <line x1="16" y1="17" x2="8" y2="17"/>
                 </svg>
               </div>
-              <div class="extrato-text">
+              <div class="extrato-text" [class.hidden]="sidebarColapsada()">
                 <span class="extrato-title">Extrato de Receitas</span>
                 <span class="extrato-subtitle">Gerencie suas entradas</span>
               </div>
             </button>
             
-            <button class="nav-item-extrato" (click)="abrirModalDespesas()">
+            <button class="nav-item-extrato" (click)="abrirModalDespesas()" [title]="sidebarColapsada() ? 'Extrato de Despesas' : ''">
               <div class="extrato-icon-wrapper">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -83,7 +98,7 @@ import { CATEGORIAS } from './models/expense.model';
                   <line x1="16" y1="17" x2="8" y2="17"/>
                 </svg>
               </div>
-              <div class="extrato-text">
+              <div class="extrato-text" [class.hidden]="sidebarColapsada()">
                 <span class="extrato-title">Extrato de Despesas</span>
                 <span class="extrato-subtitle">Visualize seus gastos</span>
               </div>
@@ -94,7 +109,7 @@ import { CATEGORIAS } from './models/expense.model';
         <div class="sidebar-footer">
           <div class="user-info">
             <div class="user-avatar">JD</div>
-            <div class="user-details">
+            <div class="user-details" [class.hidden]="sidebarColapsada()">
               <span class="user-name">Usuário</span>
               <span class="user-role">Conta Pessoal</span>
             </div>
@@ -102,10 +117,22 @@ import { CATEGORIAS } from './models/expense.model';
         </div>
       </aside>
 
+      <!-- Overlay para mobile quando sidebar está aberta -->
+      @if (sidebarAberta()) {
+        <div class="sidebar-overlay" (click)="toggleSidebar()"></div>
+      }
+
       <!-- Main Content -->
-      <main class="main-content">
+      <main class="main-content" [class.sidebar-closed]="!sidebarAberta()" [class.sidebar-collapsed]="sidebarColapsada()">
         <!-- Top Header -->
         <header class="top-header">
+          <button class="menu-toggle" (click)="toggleSidebar()" aria-label="Toggle menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
           <div class="header-left">
             <h1 class="page-title">Dashboard</h1>
             <p class="page-subtitle">Acompanhe suas finanças em tempo real</p>
@@ -431,18 +458,93 @@ import { CATEGORIAS } from './models/expense.model';
       flex-direction: column;
       position: fixed;
       height: 100vh;
-      z-index: 100;
+      z-index: 200;
+      left: 0;
+      top: 0;
+      transition: width var(--transition-base), transform var(--transition-base);
+      transform: translateX(0);
+    }
+
+    .sidebar.sidebar-closed {
+      transform: translateX(-100%);
+    }
+
+    .sidebar.sidebar-collapsed {
+      width: 80px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .sidebar-toggle-btn {
+      display: flex;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-md);
+      color: white;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .sidebar-toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .sidebar-close-btn {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-md);
+      color: white;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+      margin-left: auto;
+    }
+
+    .sidebar-close-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 150;
+      backdrop-filter: blur(2px);
     }
 
     .sidebar-header {
       padding: var(--spacing-6);
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     .logo {
       display: flex;
       align-items: center;
       gap: var(--spacing-3);
+      min-width: 0;
+    }
+
+    .sidebar.sidebar-collapsed .logo {
+      justify-content: center;
     }
 
     .logo-icon {
@@ -507,6 +609,12 @@ import { CATEGORIAS } from './models/expense.model';
       text-decoration: none;
       transition: all var(--transition-fast);
       cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .sidebar.sidebar-collapsed .nav-item {
+      justify-content: center;
+      padding: var(--spacing-3);
     }
 
     .nav-item:hover {
@@ -538,6 +646,12 @@ import { CATEGORIAS } from './models/expense.model';
       width: 100%;
       text-align: left;
       margin-top: var(--spacing-2);
+      white-space: nowrap;
+    }
+
+    .sidebar.sidebar-collapsed .nav-item-extrato {
+      justify-content: center;
+      padding: var(--spacing-3);
     }
 
     .nav-item-extrato:hover {
@@ -556,6 +670,11 @@ import { CATEGORIAS } from './models/expense.model';
       justify-content: center;
       color: white;
       flex-shrink: 0;
+    }
+
+    .sidebar.sidebar-collapsed .extrato-icon-wrapper {
+      width: 40px;
+      height: 40px;
     }
 
     .extrato-text {
@@ -984,6 +1103,11 @@ import { CATEGORIAS } from './models/expense.model';
       transition: background var(--transition-fast);
     }
 
+    .sidebar.sidebar-collapsed .user-info {
+      justify-content: center;
+      padding: var(--spacing-3);
+    }
+
     .user-info:hover {
       background: rgba(255, 255, 255, 0.05);
     }
@@ -1024,6 +1148,34 @@ import { CATEGORIAS } from './models/expense.model';
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      transition: margin-left var(--transition-base);
+    }
+
+    .main-content.sidebar-closed {
+      margin-left: 0;
+    }
+
+    .main-content.sidebar-collapsed {
+      margin-left: 80px;
+    }
+
+    .menu-toggle {
+      display: none;
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: var(--gray-100);
+      border-radius: var(--radius-md);
+      color: var(--gray-700);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+      flex-shrink: 0;
+    }
+
+    .menu-toggle:hover {
+      background: var(--gray-200);
     }
 
     /* Top Header */
@@ -1321,36 +1473,81 @@ import { CATEGORIAS } from './models/expense.model';
 
     @media (max-width: 768px) {
       .sidebar {
+        transform: translateX(-100%);
+        width: 260px;
+      }
+
+      .sidebar.sidebar-open {
+        transform: translateX(0);
+      }
+
+      .sidebar.sidebar-collapsed {
+        width: 260px;
+      }
+
+      .sidebar-overlay {
+        display: block;
+      }
+
+      .sidebar-toggle-btn {
         display: none;
+      }
+
+      .sidebar-close-btn {
+        display: flex;
       }
       
       .main-content {
         margin-left: 0;
       }
+
+      .main-content.sidebar-collapsed {
+        margin-left: 0;
+      }
+
+      .menu-toggle {
+        display: flex;
+      }
       
       .top-header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: var(--spacing-4);
-        padding: var(--spacing-4);
+        flex-wrap: wrap;
+        gap: var(--spacing-3);
+        padding: var(--spacing-3);
       }
       
       .header-left {
-        text-align: center;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .page-title {
+        font-size: var(--font-size-base);
+      }
+
+      .page-subtitle {
+        font-size: var(--font-size-xs);
       }
       
       .header-center {
-        justify-content: center;
+        width: 100%;
+        order: 3;
       }
       
       .filter-row {
         flex-direction: column;
         width: 100%;
+        gap: var(--spacing-2);
       }
       
       .btn-group {
         flex-wrap: wrap;
         justify-content: center;
+        width: 100%;
+      }
+
+      .filter-btn {
+        flex: 1;
+        min-width: 80px;
       }
       
       .filter-select {
@@ -1358,16 +1555,105 @@ import { CATEGORIAS } from './models/expense.model';
       }
       
       .header-right {
-        justify-content: center;
+        width: 100%;
+        order: 2;
+        justify-content: flex-start;
+      }
+
+      .quick-stat {
+        padding: var(--spacing-2);
+      }
+
+      .quick-stat-label {
+        font-size: 10px;
+      }
+
+      .quick-stat-value {
+        font-size: var(--font-size-sm);
       }
       
       .dashboard-content {
-        padding: var(--spacing-4);
+        padding: var(--spacing-3);
+        gap: var(--spacing-3);
+      }
+
+      .metrics-section {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-2);
+      }
+
+      .charts-section {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-2);
+      }
+
+      .management-section {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-2);
+      }
+
+      .forms-wrapper {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-content {
+        max-width: 95%;
+        max-height: 90vh;
+        margin: var(--spacing-2);
+      }
+
+      .modal-summary {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-2);
+      }
+
+      .summary-filter {
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .sidebar {
+        width: 100%;
+        max-width: 280px;
+      }
+
+      .logo-title {
+        font-size: var(--font-size-base);
+      }
+
+      .logo-subtitle {
+        font-size: 10px;
+      }
+
+      .nav-item-extrato {
+        padding: var(--spacing-2);
+      }
+
+      .extrato-icon-wrapper {
+        width: 32px;
+        height: 32px;
+      }
+
+      .extrato-title {
+        font-size: var(--font-size-xs);
+      }
+
+      .extrato-subtitle {
+        font-size: 10px;
+      }
+
+      .dashboard-content {
+        padding: var(--spacing-2);
+      }
+
+      .top-header {
+        padding: var(--spacing-2);
       }
     }
   `]
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
   private expenseService = inject(ExpenseService);
   totalDespesas$ = this.expenseService.totalDespesas$;
   anoSelecionado$ = this.expenseService.anoSelecionado$;
@@ -1382,6 +1668,40 @@ export class AppComponent {
 
   mostrarModalReceitas = signal(false);
   mostrarModalDespesas = signal(false);
+  sidebarAberta = signal(false);
+  sidebarColapsada = signal(false);
+
+  ngOnInit(): void {
+    this.verificarTamanhoTela();
+  }
+
+  ngOnDestroy(): void {
+    // Cleanup se necessário
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(): void {
+    this.verificarTamanhoTela();
+  }
+
+  private verificarTamanhoTela(): void {
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth > 768) {
+        this.sidebarAberta.set(true);
+        // No desktop, mantém o estado de colapsada se já estava
+      } else {
+        this.sidebarAberta.set(false);
+        this.sidebarColapsada.set(false); // No mobile, não usa colapsada
+      }
+    }
+  }
+
+  toggleSidebarColapsada(): void {
+    // Só permite colapsar no desktop
+    if (typeof window !== 'undefined' && window.innerWidth > 768) {
+      this.sidebarColapsada.update(value => !value);
+    }
+  }
 
   categorias = ['Todas', ...CATEGORIAS];
 
@@ -1473,5 +1793,9 @@ export class AppComponent {
 
   ehAltoValor(valor: number): boolean {
     return valor >= 500;
+  }
+
+  toggleSidebar(): void {
+    this.sidebarAberta.update(value => !value);
   }
 }
