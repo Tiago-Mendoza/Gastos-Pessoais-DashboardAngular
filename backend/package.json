@@ -1,0 +1,20 @@
+{
+  "name": "controle-gastos-backend",
+  "version": "1.0.0",
+  "description": "Backend de teste para Controle de Gastos Pessoais usando json-server",
+  "main": "db.json",
+  "scripts": {
+    "start": "json-server --watch db.json --port 3000 --host 0.0.0.0",
+    "start:dev": "json-server --watch db.json --port 3000 --delay 500 --host 0.0.0.0"
+  },
+  "keywords": [
+    "json-server",
+    "api",
+    "test"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "json-server": "^0.17.4"
+  }
+}
