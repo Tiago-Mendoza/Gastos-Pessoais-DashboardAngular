@@ -14,7 +14,9 @@ import { Expense, CATEGORIAS, DadosGrafico, Income, Budget } from '../../models/
 export class ExpenseService {
   private http = inject(HttpClient);
   private readonly API_URL = 'http://localhost:3000';
-  private usarBackend = true; // Flag para controlar se usa backend ou localStorage
+  /** Em produção (ex: Vercel) não tenta backend para evitar erros de rede/CORS. */
+  private readonly tentarBackend = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+  private usarBackend = this.tentarBackend; // Flag para controlar se usa backend ou localStorage
   // Signal que armazena a lista de despesas
   // Usando signal() criamos um estado reativo que pode ser lido e modificado
   private readonly _expenses = signal<Expense[]>([]);
@@ -212,8 +214,13 @@ export class ExpenseService {
   });
 
   constructor() {
-    // Carrega dados do backend ao inicializar
-    this.carregarDoBackend();
+    if (this.tentarBackend) {
+      this.carregarDoBackend();
+    } else {
+      // Em produção (ex: Vercel) usa só localStorage, sem tentar localhost
+      this.usarBackend = false;
+      this.carregarDoLocalStorage();
+    }
   }
 
   /**
